@@ -6,4 +6,4 @@ e = executable('qa_copy',
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
     install : true)
-test('MT Tags Tests', e)
+test('Copy Kernel Tests', e)
