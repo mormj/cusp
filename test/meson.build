@@ -15,7 +15,7 @@ e2 = executable('qa_add_const.cu',
     dependencies: [cusp_dep, gtest_dep], 
     install : true)
 e3 = executable('qa_multiply_const.cu', 
-    src2, 
+    src3, 
     include_directories : incdir, 
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
