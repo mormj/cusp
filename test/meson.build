@@ -7,6 +7,7 @@ e = executable('qa_copy',
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
     install : true)
+
 e2 = executable('qa_add_const', 
     src2, 
     include_directories : incdir, 
@@ -15,3 +16,4 @@ e2 = executable('qa_add_const',
     install : true)
 test('Test Copy', e)
 test('Test Add Constant', e2)
+
