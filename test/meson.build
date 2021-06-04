@@ -1,5 +1,7 @@
 src1 = ['qa_copy.cu']
 src2 = ['qa_add_const.cu']
+src3 = ['qa_multiply_const.cu']
+src4 = ['qa_fft_shift.cu']
 incdir = ['../include']
 e = executable('qa_copy', 
     'qa_copy.cu', 
@@ -15,7 +17,25 @@ e = executable('qa_add_const',
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
     install : true)
+
 test('Test Add Constant', e)
+
+e = executable('qa_multiply_const',
+    src3,
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies: [cusp_dep, gtest_dep],
+    install : true)
+test('Test Multiply Constant', e)
+
+e = executable('qa_fft_shift',
+    src4,
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test FFT Shift', e)
 
 e = executable('qa_add', 
     'qa_add.cu', 
