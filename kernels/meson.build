@@ -1,8 +1,10 @@
 
 cusp_cu_files = files([
-    'copy.cu',
+    'copy.cu', 
     'add.cu',
-    'add_const.cu'])
+    'add_const.cu',
+    'multiply_const.cu',
+    'fft_shift.cu'])
 
 incdir = ['../include']
 
