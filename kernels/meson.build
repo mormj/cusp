@@ -1,5 +1,7 @@
 
-cusp_cu_files = files(['copy.cu', 'add_const.cu'])
+cusp_cu_files = files([
+    'copy.cu', 
+    'add_const.cu'])
 
 incdir = ['../include']
 

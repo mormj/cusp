@@ -1,19 +1,42 @@
-#include <cusp/copy.cuh>
-#include <gtest/gtest.h>
 #include <complex>
+#include <cusp/copy.cuh>
 #include <cusp/cusp.cuh>
+#include <gtest/gtest.h>
 
-using namespace cusp;
-
-TEST(CopyKernel, Basic)
+template <typename T> void run_test(int N)
 {
-    int N = 1024*100;
-    std::vector<std::complex<float>> input_data(N);
-    for (int i=0; i<N; i++)
-        input_data[i] = i;
-    std::vector<std::complex<float>> output_data(N);
-    launch_kernel_copy<uint64_t>((uint64_t *)input_data.data(), (uint64_t *)output_data.data(),
-        1024, N / 1024, N);
+    std::vector<std::complex<float>> host_input_data(N);
+    for (int i = 0; i < N; i++) {
+      host_input_data[i] = std::complex<float>(i, -i);
+    }
+    std::vector<std::complex<float>> host_output_data(N);
+  
+    void *dev_input_data;
+    void *dev_output_data;
+  
+    cudaMalloc(&dev_input_data, N * sizeof(std::complex<float>));
+    cudaMalloc(&dev_output_data, N * sizeof(std::complex<float>));
+  
+    cudaMemcpy(dev_input_data, host_input_data.data(),
+               N * sizeof(std::complex<float>), cudaMemcpyHostToDevice);
+  
+    int ncopies = N * sizeof(std::complex<float>) / sizeof(T);
+    cusp::copy<T> op;
+    int minGrid, minBlock;
+    op.occupancy(&minBlock, &minGrid);
+    op.set_block_and_grid(minGrid, ncopies / minGrid);
+    op.launch({dev_input_data}, {dev_output_data}, ncopies);
+  
+    cudaDeviceSynchronize();
+    cudaMemcpy(host_output_data.data(), dev_output_data,
+               N * sizeof(std::complex<float>), cudaMemcpyDeviceToHost);
+  
+    EXPECT_EQ(host_input_data, host_output_data);
+}
 
-    EXPECT_EQ(input_data, output_data);
+TEST(CopyKernel, Basic) {
+  int N = 1024 * 100;
+
+  run_test<uint64_t>(N);
+  run_test<uint8_t>(N);
 }
