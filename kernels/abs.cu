@@ -1,8 +1,6 @@
 #include <cuComplex.h>
-#include <complex>
 #include <cuda.h>
 #include <cuda_runtime.h>
-
 #include "helper_cuda.h"
 #include <cusp/abs.cuh>
 
@@ -21,8 +19,8 @@ template <> __global__ void kernel_abs<cuFloatComplex>(const cuFloatComplex *in,
 {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
-    out[i].x = fabsf(in[i].x);
-    out[i].y = fabsf(in[i].y);
+    out[i].x = sqrtf(powf(in[i].x, 2) + powf(in[i].y, 2));
+    out[i].y = 0;
   }
 }
 
