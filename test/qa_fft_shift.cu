@@ -16,7 +16,7 @@ void run_test(int N)
     }
     int mid = (N-1)/2; // mid index
     for (int i = 0; i < N; i++) {
-        if ((N%2) == 0) { // if even number of elements
+        if ((N & 1) == 0) { // if even number of elements
             if (i < mid + 1) {
                 expected_output_data[i] = host_input_data[i + mid + 1];
                 expected_output_data[i + mid + 1] = host_input_data[i];
