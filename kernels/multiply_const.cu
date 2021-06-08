@@ -14,6 +14,19 @@ __global__ void kernel_multiply_const(const T *in, T *out, T k, int N) {
   }
 }
 
+template <>
+__global__ void kernel_multiply_const(const cuFloatComplex* in,
+                                      cuFloatComplex* out,
+                                      cuFloatComplex k,
+                                      int N)
+{
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    out[i].x = k.x * in[i].x - k.y * in[i].y;
+    out[i].y = k.x * in[i].y + k.y * in[i].x;
+  }
+}
+
 template <typename T>
 cudaError_t multiply_const<T>::launch(const T *in, T *out, T k, int N, int grid_size,
                                  int block_size, cudaStream_t stream) {
@@ -41,11 +54,13 @@ cudaError_t multiply_const<T>::occupancy(int *minBlock, int *minGrid) {
 
 #define IMPLEMENT_KERNEL(T) template class multiply_const<T>;
 
-IMPLEMENT_KERNEL(int8_t)
-IMPLEMENT_KERNEL(int16_t)
-IMPLEMENT_KERNEL(int32_t)
-IMPLEMENT_KERNEL(int64_t)
+IMPLEMENT_KERNEL(uint8_t)
+IMPLEMENT_KERNEL(uint16_t)
+IMPLEMENT_KERNEL(uint32_t)
+IMPLEMENT_KERNEL(uint64_t)
+IMPLEMENT_KERNEL(int)
 IMPLEMENT_KERNEL(float)
+IMPLEMENT_KERNEL(cuFloatComplex)
 // IMPLEMENT_KERNEL(std::complex<float>)
 
 } // namespace cusp

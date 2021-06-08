@@ -1,7 +1,7 @@
 #include <cuComplex.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
-
+#include <complex>
 #include "helper_cuda.h"
 #include <cusp/fft_shift.cuh>
 
@@ -10,7 +10,7 @@ namespace cusp {
 template <typename T> __global__ void kernel_fft_shift(const T *in, T *out, int N) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   int mid = (N-1)/2; // mid index
-  if ((N%2) == 0) { // if even number of elements
+  if ((N & 1) == 0) { // if even number of elements
     if (i < mid + 1) {
         out[i] = in[i + mid + 1];
         out[i + mid + 1] = in[i];
