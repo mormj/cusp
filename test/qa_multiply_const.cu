@@ -26,9 +26,10 @@ void run_test(int N, T k)
                N * sizeof(T), cudaMemcpyHostToDevice);
   
     cusp::multiply_const<T> op(k);
-    int minGrid, minBlock;
-    op.occupancy(&minBlock, &minGrid);
-    op.set_block_and_grid(minGrid, N / minGrid);
+    int minGrid, blockSize, gridSize;
+    op.occupancy(&blockSize, &minGrid);
+    gridSize = (N + blockSize - 1) / blockSize;
+    op.set_block_and_grid(blockSize, gridSize);
     op.launch({dev_input_data}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
