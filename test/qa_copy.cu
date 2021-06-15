@@ -22,9 +22,11 @@ template <typename T> void run_test(int N)
   
     int ncopies = N * sizeof(std::complex<float>) / sizeof(T);
     cusp::copy<T> op;
-    int minGrid, minBlock;
-    op.occupancy(&minBlock, &minGrid);
-    op.set_block_and_grid(minGrid, ncopies / minGrid);
+    
+    int minGrid, blockSize, gridSize;
+    op.occupancy(&blockSize, &minGrid);
+    gridSize = (ncopies + blockSize - 1) / blockSize;
+    op.set_block_and_grid(blockSize, gridSize);
     op.launch({dev_input_data}, {dev_output_data}, ncopies);
   
     cudaDeviceSynchronize();
@@ -36,6 +38,8 @@ template <typename T> void run_test(int N)
 
 TEST(CopyKernel, Basic) {
   int N = 1024 * 100;
+
+  N = 32;
 
   run_test<uint64_t>(N);
   run_test<uint8_t>(N);
