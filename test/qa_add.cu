@@ -26,24 +26,7 @@ void run_add_test(int N, T num_inputs)
     cudaMemcpy(dev_input_data, host_input_data.data(),
                N * sizeof(T), cudaMemcpyHostToDevice);
   
-    int ncopies = N * sizeof(std::complex<float>) / sizeof(T);
     cusp::add<T> op(num_inputs);
-    
-    
-    int minGrid, blockSize, gridSize;
-    op.occupancy(&blockSize, &minGrid);
-    gridSize = (ncopies + blockSize - 1) / blockSize;
-    op.set_block_and_grid(blockSize, gridSize);
-    std::vector<const void *> input_data_pointer_vec(num_inputs);
-    for (int i=0; i<num_inputs; i++)
-    {
-      input_data_pointer_vec[i] = dev_input_data;
-    }
-    op.launch(input_data_pointer_vec, {dev_output_data}, ncopies);
-    //op.launch({dev_input_data}, {dev_output_data}, ncopies);
-    
-
-   /*
     
     int minGrid, minBlock;
     op.occupancy(&minBlock, &minGrid);
@@ -56,7 +39,7 @@ void run_add_test(int N, T num_inputs)
     }
 
     op.launch(input_data_pointer_vec, {dev_output_data}, N);
-    */
+    
     
   
     cudaDeviceSynchronize();
