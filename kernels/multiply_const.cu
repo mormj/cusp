@@ -38,6 +38,17 @@ cudaError_t multiply_const<T>::launch(const T *in, T *out, T k, int N, int grid_
   return cudaPeekAtLastError();
 }
 
+template <>
+cudaError_t multiply_const<std::complex<float>>::launch(const std::complex<float> *in, std::complex<float> *out, std::complex<float> k, int N, int grid_size,
+                                 int block_size, cudaStream_t stream) {
+  if (stream) {
+    kernel_multiply_const<cuFloatComplex><<<grid_size, block_size, 0, stream>>>((const cuFloatComplex *)in, (cuFloatComplex *)out, make_cuFloatComplex(k.real(), k.imag()), N);
+  } else {
+    kernel_multiply_const<cuFloatComplex><<<grid_size, block_size>>>((const cuFloatComplex *)in, (cuFloatComplex *)out, make_cuFloatComplex(k.real(), k.imag()), N);
+  }
+  return cudaPeekAtLastError();
+}
+
 template <typename T>
 cudaError_t multiply_const<T>::launch(const std::vector<const void *> inputs,
                                  const std::vector<void *> outputs,
@@ -52,6 +63,12 @@ cudaError_t multiply_const<T>::occupancy(int *minBlock, int *minGrid) {
                                             kernel_multiply_const<T>, 0, 0);
 }
 
+template <>
+cudaError_t multiply_const<std::complex<float>>::occupancy(int *minBlock, int *minGrid) {
+  return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
+                                            kernel_multiply_const<cuFloatComplex>, 0, 0);
+}
+
 #define IMPLEMENT_KERNEL(T) template class multiply_const<T>;
 
 IMPLEMENT_KERNEL(int8_t)
@@ -59,7 +76,7 @@ IMPLEMENT_KERNEL(int16_t)
 IMPLEMENT_KERNEL(int32_t)
 IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(float)
-IMPLEMENT_KERNEL(cuFloatComplex)
-// IMPLEMENT_KERNEL(std::complex<float>)
+//IMPLEMENT_KERNEL(cuFloatComplex)
+IMPLEMENT_KERNEL(std::complex<float>)
 
 } // namespace cusp
