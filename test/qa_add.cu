@@ -27,6 +27,13 @@ void run_add_test(int N, T num_inputs)
                N * sizeof(T), cudaMemcpyHostToDevice);
   
     cusp::add<T> op(num_inputs);
+
+    int minGrid, blockSize, gridSize;
+    op.occupancy(&blockSize, &minGrid);
+    gridSize = (ncopies + blockSize - 1) / blockSize;
+    op.set_block_and_grid(blockSize, gridSize);
+    op.launch({dev_input_data}, {dev_output_data}, ncopies);
+    /*
     int minGrid, minBlock;
     op.occupancy(&minBlock, &minGrid);
     op.set_block_and_grid(minGrid, N / minGrid);
@@ -38,6 +45,7 @@ void run_add_test(int N, T num_inputs)
     }
 
     op.launch(input_data_pointer_vec, {dev_output_data}, N);
+    */
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
