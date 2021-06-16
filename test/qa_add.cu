@@ -26,6 +26,7 @@ void run_add_test(int N, T num_inputs)
     cudaMemcpy(dev_input_data, host_input_data.data(),
                N * sizeof(T), cudaMemcpyHostToDevice);
   
+    int ncopies = N * sizeof(std::complex<float>) / sizeof(T);
     cusp::add<T> op(num_inputs);
 
     int minGrid, blockSize, gridSize;
