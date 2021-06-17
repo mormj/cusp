@@ -72,3 +72,21 @@ e = executable('qa_exponentiate',
     install : true)
 
 test('Test Exponentiate', e)
+
+e = executable('qa_complex_to_mag',
+    'qa_complex_to_mag.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Complex to Mag', e)
+
+e = executable('qa_complex_to_mag_squared',
+    'qa_complex_to_mag_squared.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Complex to Mag Squared', e)

@@ -8,7 +8,9 @@ cusp_cu_files = files([
     'nlog10.cu',
     'conjugate.cu',
     'absolute_value.cu',
-    'exponentiate.cu'])
+    'exponentiate.cu',
+    'complex_to_mag.cu',
+    'complex_to_mag_squared.cu'])
 
 incdir = ['../include']
 
