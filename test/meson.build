@@ -37,58 +37,38 @@ e = executable('qa_fft_shift',
 
 test('Test FFT Shift', e)
 
-e = executable('qa_add', 
-    'qa_add.cu', 
-    include_directories : incdir, 
+e = executable('qa_nlog10',
+    'qa_nlog10.cu',
+    include_directories : incdir,
     link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
+    dependencies : [cusp_dep, gtest_dep],
     install : true)
-test('Test Add', e)
 
-e = executable('qa_absolute_value', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
+test('Test Nlog10', e)
+
+e = executable('qa_conjugate',
+    'qa_conjugate.cu',
+    include_directories : incdir,
     link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
+    dependencies : [cusp_dep, gtest_dep],
     install : true)
+
+test('Test conjugate', e)
+
+e = executable('qa_absolute_value',
+    'qa_absolute_value.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
 test('Test Absolute Value', e)
 
-e = executable('qa_conjugate', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
+e = executable('qa_exponentiate',
+    'qa_exponentiate.cu',
+    include_directories : incdir,
     link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
+    dependencies : [cusp_dep, gtest_dep],
     install : true)
-test('Test Conjugate', e)
 
-e = executable('qa_exponentiate', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
-    link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
-    install : true)
 test('Test Exponentiate', e)
-
-e = executable('qa_complex_to_mag)', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
-    link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
-    install : true)
-test('Test Magnitude', e)
-
-e = executable('qa_complex_to_mag_squared)', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
-    link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
-    install : true)
-test('Test Magnitude Squared', e)
-
-e = executable('qa_nlog10)', 
-    'qa_absolute_value.cu', 
-    include_directories : incdir, 
-    link_language : 'cpp',
-    dependencies: [cusp_dep, gtest_dep], 
-    install : true)
-test('Test Log10', e)

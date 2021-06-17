@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cusp/kernel.cuh>
+#include "kernel.cuh"
+#include <thrust/complex.h>
 
 namespace cusp
 {

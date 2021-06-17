@@ -5,12 +5,10 @@ cusp_cu_files = files([
     'add_const.cu',
     'multiply_const.cu',
     'fft_shift.cu',
-    'absolute_value.cu',
+    'nlog10.cu',
     'conjugate.cu',
-    'exponentiate.cu',
-    'qa_complex_to_mag',
-    'qa_complex_to_mag_squared',
-    'nlog10'])
+    'absolute_value.cu',
+    'exponentiate.cu'])
 
 incdir = ['../include']
 
