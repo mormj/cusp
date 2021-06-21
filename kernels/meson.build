@@ -10,7 +10,14 @@ cusp_cu_files = files([
     'absolute_value.cu',
     'exponentiate.cu',
     'complex_to_mag.cu',
-    'complex_to_mag_squared.cu'])
+    'complex_to_mag_squared.cu',
+    'and.cu',
+    'or.cu',
+    'xor.cu',
+    'not.cu',
+    'add.cu',
+    'divide.cu',
+    'multiply.cu'])
 
 incdir = ['../include']
 

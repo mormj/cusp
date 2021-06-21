@@ -90,3 +90,66 @@ e = executable('qa_complex_to_mag_squared',
     install : true)
 
 test('Test Complex to Mag Squared', e)
+
+e = executable('qa_and',
+    'qa_and.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test And', e)
+
+e = executable('qa_or',
+    'qa_or.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Or', e)
+
+e = executable('qa_xor',
+    'qa_xor.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Xor', e)
+
+e = executable('qa_not',
+    'qa_not.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Not', e)
+
+e = executable('qa_add',
+    'qa_add.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Add', e)
+
+e = executable('qa_divide',
+    'qa_divide.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Divide', e)
+
+e = executable('qa_multiply',
+    'qa_multiply.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : true)
+
+test('Test Multiply', e)
