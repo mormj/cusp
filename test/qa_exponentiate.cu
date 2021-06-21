@@ -120,9 +120,16 @@ void run_test<std::complex<float>>(int N, float e)
   
     //EXPECT_EQ(expected_output_data, host_output_data);
     for (int i = 0; i < (int)expected_output_data.size(); i++) {
+
+      // Also add a test case to check for imaginary component
+
       EXPECT_NEAR(expected_output_data[i].real(),
                   host_output_data[i].real(),
                   abs(expected_output_data[i].real() / 10000));
+
+      EXPECT_NEAR(expected_output_data[i].imag(),
+                  host_output_data[i].imag(),
+                  abs(expected_output_data[i].imag() / 10000));
     }
 }
 

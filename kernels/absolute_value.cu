@@ -29,10 +29,10 @@ __global__ void kernel_abs<thrust::complex<float>>(const thrust::complex<float> 
     }
     else {
       for (int t = 0; t < 15; t++) {
-      guess = 0.5f * (guess + start / guess);
-    }
-    out[i] = thrust::complex<float>(guess, 0);
-    //out[i] = thrust::complex<float>(sqrtf(powf(in[i].real(), 2) + powf(in[i].imag(), 2)), 0);
+        guess = 0.5f * (guess + start / guess);
+      }
+      out[i] = thrust::complex<float>(guess, 0);
+      //out[i] = thrust::complex<float>(sqrtf(powf(in[i].real(), 2) + powf(in[i].imag(), 2)), 0);
     }
   }
 }
