@@ -1,14 +1,10 @@
-src1 = ['qa_copy.cu']
-src2 = ['qa_add_const.cu']
-src3 = ['qa_multiply_const.cu']
-src4 = ['qa_fft_shift.cu']
 incdir = ['../include']
 e = executable('qa_copy', 
     'qa_copy.cu', 
     include_directories : incdir, 
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
-    install : true)
+    install : false)
 test('Test Copy', e)
 
 e = executable('qa_add_const', 
@@ -16,24 +12,24 @@ e = executable('qa_add_const',
     include_directories : incdir, 
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep], 
-    install : true)
+    install : false)
 
 test('Test Add Constant', e)
 
 e = executable('qa_multiply_const',
-    src3,
+    'qa_multiply_const.cu',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies: [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 test('Test Multiply Constant', e)
 
 e = executable('qa_fft_shift',
-    src4,
+    'qa_fft_shift.cu',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test FFT Shift', e)
 
@@ -42,7 +38,7 @@ e = executable('qa_nlog10',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Nlog10', e)
 
@@ -51,7 +47,7 @@ e = executable('qa_conjugate',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test conjugate', e)
 
@@ -60,7 +56,7 @@ e = executable('qa_absolute_value',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Absolute Value', e)
 
@@ -69,7 +65,7 @@ e = executable('qa_exponentiate',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Exponentiate', e)
 
@@ -78,7 +74,7 @@ e = executable('qa_complex_to_mag',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Complex to Mag', e)
 
@@ -87,7 +83,7 @@ e = executable('qa_complex_to_mag_squared',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Complex to Mag Squared', e)
 
@@ -96,7 +92,7 @@ e = executable('qa_and',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test And', e)
 
@@ -105,7 +101,7 @@ e = executable('qa_or',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Or', e)
 
@@ -114,7 +110,7 @@ e = executable('qa_xor',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Xor', e)
 
@@ -123,7 +119,7 @@ e = executable('qa_not',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Not', e)
 
@@ -132,7 +128,7 @@ e = executable('qa_add',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Add', e)
 
@@ -141,7 +137,7 @@ e = executable('qa_divide',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Divide', e)
 
@@ -150,6 +146,6 @@ e = executable('qa_multiply',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
-    install : true)
+    install : false)
 
 test('Test Multiply', e)
