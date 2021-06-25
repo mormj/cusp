@@ -1,8 +1,7 @@
-#include <cuComplex.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include "helper_cuda.h"
-#include "../include/cusp/conjugate.cuh"
+#include <cusp/conjugate.cuh>
 
 namespace cusp {
 

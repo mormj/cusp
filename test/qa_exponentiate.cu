@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <complex>
-#include "../include/cusp/exponentiate.cuh"
+#include <cusp/exponentiate.cuh>
 #include <cmath>
-#include <cuComplex.h>
 
 using namespace cusp;
 
@@ -36,13 +35,6 @@ void run_test(int N, float e)
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
-
-    for (int i = 0; i < (int)expected_output_data.size(); i++) {
-      if (expected_output_data[i] != host_output_data[i]) {
-        std::cout << "Expected: " << expected_output_data[i] << std::endl;
-        std::cout << "Actual: " << host_output_data[i] << std::endl;
-      }
-    }
   
     EXPECT_EQ(expected_output_data, host_output_data);
 }

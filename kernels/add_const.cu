@@ -1,5 +1,4 @@
-#include "../include/cusp/add_const.cuh"
-#include <cuComplex.h>
+#include <cusp/add_const.cuh>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <complex>

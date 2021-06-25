@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <complex>
-#include "../include/cusp/conjugate.cuh"
+#include <cusp/conjugate.cuh>
 #include <cmath>
-#include <cuComplex.h>
 
 using namespace cusp;
 

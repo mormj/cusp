@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-#include "../include/cusp/absolute_value.cuh"
-#include <cuComplex.h>
+#include <cusp/absolute_value.cuh>
 
 using namespace cusp;
 

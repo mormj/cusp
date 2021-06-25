@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <complex>
-#include "../include/cusp/complex_to_mag_squared.cuh"
+#include <cusp/complex_to_mag_squared.cuh>
 #include <cmath>
-#include <cuComplex.h>
 
 using namespace cusp;
 

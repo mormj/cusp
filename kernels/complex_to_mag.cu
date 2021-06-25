@@ -1,10 +1,9 @@
-#include <cuComplex.h>
 #include <cuda.h>
 #include <complex>
 #include <thrust/complex.h>
 #include <cuda_runtime.h>
 #include "helper_cuda.h"
-#include "../include/cusp/complex_to_mag.cuh"
+#include <cusp/complex_to_mag.cuh>
 
 namespace cusp {
 

@@ -1,9 +1,7 @@
 #include <complex>
-#include <cuComplex.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include "../include/cusp/xor.cuh"
-#include <iostream>
+#include <cusp/xor.cuh>
 #include "helper_cuda.h"
 
 namespace cusp {

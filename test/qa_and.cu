@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../include/cusp/and.cuh"
+#include <cusp/and.cuh>
 
 using namespace cusp;
 

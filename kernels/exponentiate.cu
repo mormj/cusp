@@ -1,7 +1,6 @@
-#include <cuComplex.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include "../include/cusp/exponentiate.cuh"
+#include <cusp/exponentiate.cuh>
 
 namespace cusp {
 
