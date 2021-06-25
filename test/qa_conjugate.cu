@@ -26,7 +26,7 @@ void run_test(int N)
     cudaMemcpy(dev_input_data, host_input_data.data(),
                N * sizeof(std::complex<float>), cudaMemcpyHostToDevice);
   
-    cusp::conjugate<std::complex<float>> op;
+    cusp::conjugate op;
     int minGrid, blockSize, gridSize;
     op.occupancy(&blockSize, &minGrid);
     gridSize = (N + blockSize - 1) / blockSize;

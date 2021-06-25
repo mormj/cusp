@@ -7,42 +7,34 @@
 
 namespace cusp {
 
-template <typename T> __global__ void kernel_mag_squared(const T *in, T *out, int N) {
+__global__ void kernel_mag_squared(const thrust::complex<float> *in, float *out, int N) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
-    float mag_squared = in[i].real() * in[i].real() + in[i].imag() * in[i].imag();
-    out[i] = thrust::complex<float>(mag_squared, 0);
+    out[i] = in[i].real() * in[i].real() + in[i].imag() * in[i].imag();
   }
 }
 
-
-template <typename T>
-cudaError_t complex_to_mag_squared<T>::launch(const T *in, T *out, int N, int grid_size, int block_size,
+cudaError_t complex_to_mag_squared::launch(const std::complex<float> *in, float *out, int N, int grid_size, int block_size,
                   cudaStream_t stream) {
   if (stream) {
     kernel_mag_squared<<<grid_size, block_size, 0, stream>>>((const thrust::complex<float> *)in, 
-                                                     (thrust::complex<float> *)out, N);
+                                                     out, N);
   } else {
     kernel_mag_squared<<<grid_size, block_size>>>((const thrust::complex<float> *)in, 
-                                          (thrust::complex<float> *)out, N);
+                                          out, N);
   }
   return cudaPeekAtLastError();
 }
 
-template <typename T>
-cudaError_t complex_to_mag_squared<T>::launch(const std::vector<const void *> inputs,
+cudaError_t complex_to_mag_squared::launch(const std::vector<const void *> inputs,
                   const std::vector<void *> outputs, size_t nitems) {
-  return launch((const T*)inputs[0], (T*)outputs[0], nitems, _grid_size, _block_size, _stream);
+  return launch((const std::complex<float>*)inputs[0], (float*)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 
-template <typename T> cudaError_t complex_to_mag_squared<T>::occupancy(int *minBlock, int *minGrid) {
+cudaError_t complex_to_mag_squared::occupancy(int *minBlock, int *minGrid) {
   return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
-                                            kernel_mag_squared<thrust::complex<float>>,
+                                            kernel_mag_squared,
                                             0, 0);
 }
-
-#define IMPLEMENT_KERNEL(T) template class complex_to_mag_squared<T>;
-
-IMPLEMENT_KERNEL(std::complex<float>)
 
 } // namespace cusp
