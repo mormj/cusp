@@ -1,10 +1,9 @@
-#include <cuComplex.h>
 #include <cuda.h>
 #include <complex>
 #include <thrust/complex.h>
 #include <cuda_runtime.h>
 #include "helper_cuda.h"
-#include "../include/cusp/absolute_value.cuh"
+#include <cusp/absolute_value.cuh>
 
 namespace cusp {
 
@@ -32,7 +31,6 @@ __global__ void kernel_abs<thrust::complex<float>>(const thrust::complex<float> 
         guess = 0.5f * (guess + start / guess);
       }
       out[i] = thrust::complex<float>(guess, 0);
-      //out[i] = thrust::complex<float>(sqrtf(powf(in[i].real(), 2) + powf(in[i].imag(), 2)), 0);
     }
   }
 }
@@ -87,6 +85,5 @@ IMPLEMENT_KERNEL(int32_t)
 IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(std::complex<float>);
 IMPLEMENT_KERNEL(float)
-//IMPLEMENT_KERNEL(cuFloatComplex)
 
 } // namespace cusp

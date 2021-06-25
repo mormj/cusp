@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../include/cusp/nlog10.cuh"
+#include <cusp/nlog10.cuh>
 #include <cmath>
 
 using namespace cusp;
@@ -38,16 +38,11 @@ void run_test(int N, float n, float k)
   
     EXPECT_EQ(expected_output_data, host_output_data);
 
-    // for (int i = 0; i < (int)expected_output_data.size(); i++) {
-    //   std::cout << "Expected: " << expected_output_data[i] << std::endl;
-    //   std::cout << "Actual: " << host_output_data[i] << std::endl;
-    // }
 }
 
 template <> 
 void run_test<float>(int N, float n, float k)
 {
-    std::cout << "from float test" << std::endl;
     std::vector<float> host_input_data(N);
     std::vector<float> expected_output_data(N);
     for (int i = 0; i < N; i++) {
@@ -77,8 +72,6 @@ void run_test<float>(int N, float n, float k)
                N * sizeof(float), cudaMemcpyDeviceToHost);
 
     for (int i = 0; i < (int)expected_output_data.size(); i++) {
-      std::cout << "Expected: " << expected_output_data[i] << std::endl;
-      std::cout << "Actual: " << host_output_data[i] << std::endl;
       
       EXPECT_NEAR(expected_output_data[i],
                   host_output_data[i],

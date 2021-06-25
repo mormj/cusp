@@ -1,7 +1,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include "helper_cuda.h"
-#include "../include/cusp/not.cuh"
+#include <cusp/not.cuh>
 
 namespace cusp {
 

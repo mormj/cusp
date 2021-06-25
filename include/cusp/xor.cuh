@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kernel.cuh"
+#include <cusp/kernel.cuh>
 
 namespace cusp
 {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <complex>
-#include "../include/cusp/multiply.cuh"
+#include <cusp/multiply.cuh>
 
 using namespace cusp;
 

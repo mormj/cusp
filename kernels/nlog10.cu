@@ -1,5 +1,4 @@
-#include "../include/cusp/nlog10.cuh"
-#include <cuComplex.h>
+#include <cusp/nlog10.cuh>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <complex>

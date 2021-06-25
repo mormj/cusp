@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <complex>
-#include "../include/cusp/divide.cuh"
+#include <cusp/divide.cuh>
 
 using namespace cusp;
 
