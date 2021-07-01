@@ -141,11 +141,20 @@ e = executable('qa_divide',
 
 test('Test Divide', e)
 
-e = executable('qa_multiply',
-    'qa_multiply.cu',
+# e = executable('qa_multiply',
+#     'qa_multiply.cu',
+#     include_directories : incdir,
+#     link_language : 'cpp',
+#     dependencies : [cusp_dep, gtest_dep],
+#     install : false)
+
+# test('Test Multiply', e)
+
+e = executable('qa_convolve',
+    'qa_convolve.cu',
     include_directories : incdir,
     link_language : 'cpp',
     dependencies : [cusp_dep, gtest_dep],
     install : false)
 
-test('Test Multiply', e)
+test('Test Convolve', e)
