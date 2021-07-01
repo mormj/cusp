@@ -25,8 +25,8 @@ cudaError_t nlog10<T>::launch(const T *in, T *out, T n, T k, int N, int grid_siz
 }
 
 template <typename T>
-cudaError_t nlog10<T>::launch(const std::vector<const void *> inputs,
-                                 const std::vector<void *> outputs,
+cudaError_t nlog10<T>::launch(const std::vector<const void *>& inputs,
+                                 const std::vector<void *>& outputs,
                                  size_t nitems) {
   return launch((const T *)inputs[0], (T *)outputs[0], _n, _k, nitems, _grid_size,
                 _block_size, _stream);

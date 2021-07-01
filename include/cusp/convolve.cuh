@@ -9,7 +9,8 @@ namespace cusp
     {
         VALID = 0,
         SAME = 1,
-        FULL = 2
+        FULL = 2,
+        FULL_TRUNC = 3
     };
 
     template <typename T, typename T_TAPS>
@@ -23,8 +24,8 @@ namespace cusp
         convolve(const std::vector<T_TAPS>& taps, const convolve_mode_t mode = 2);
         cudaError_t launch(const T *in, T *out, int grid_size, int block_size,
             int N, cudaStream_t stream = 0);
-        virtual cudaError_t launch(const std::vector<const void *> inputs,
-            const std::vector<void *> outputs, size_t nitems) override;
+        virtual cudaError_t launch(const std::vector<const void *>& inputs,
+            const std::vector<void *>& outputs, size_t nitems) override;
         virtual cudaError_t occupancy(int *minBlock, int *minGrid);
         int output_length(int input_length);
     };

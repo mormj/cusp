@@ -39,7 +39,7 @@ template <typename T> add<T>::add(int ninputs) : _ninputs(ninputs) {
 }
 
 template <typename T>
-cudaError_t add<T>::launch(const std::vector<const void *> inputs, T *output,
+cudaError_t add<T>::launch(const std::vector<const void *>& inputs, T *output,
                            int ninputs, int grid_size, int block_size,
                            size_t nitems, cudaStream_t stream) {
 
@@ -59,7 +59,7 @@ cudaError_t add<T>::launch(const std::vector<const void *> inputs, T *output,
 }
 
 template <>
-cudaError_t add<std::complex<float>>::launch(const std::vector<const void *> inputs,
+cudaError_t add<std::complex<float>>::launch(const std::vector<const void *>& inputs,
                            std::complex<float> *output,
                            int ninputs, int grid_size, int block_size,
                            size_t nitems, cudaStream_t stream) {
@@ -81,8 +81,8 @@ cudaError_t add<std::complex<float>>::launch(const std::vector<const void *> inp
 }
 
 template <typename T>
-cudaError_t add<T>::launch(const std::vector<const void *> inputs,
-                           const std::vector<void *> outputs, size_t nitems) {
+cudaError_t add<T>::launch(const std::vector<const void *>& inputs,
+                           const std::vector<void *>& outputs, size_t nitems) {
   return launch(inputs, (T *)outputs[0], _ninputs, _grid_size, _block_size,
                 nitems, _stream);
 }

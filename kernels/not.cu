@@ -25,8 +25,8 @@ cudaError_t not_bitwise<T>::launch(const T *in, T *out, int N, int grid_size, in
 }
 
 template <typename T>
-cudaError_t not_bitwise<T>::launch(const std::vector<const void *> inputs,
-                  const std::vector<void *> outputs, size_t nitems) {
+cudaError_t not_bitwise<T>::launch(const std::vector<const void *>& inputs,
+                  const std::vector<void *>& outputs, size_t nitems) {
   return launch((const T*)inputs[0], (T*)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 
