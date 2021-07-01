@@ -1,7 +1,7 @@
+#include "helper_cuda.h"
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cusp/convolve.cuh>
-#include "helper_cuda.h"
 
 namespace cusp {
 
@@ -12,7 +12,9 @@ extern "C" __global__ void __launch_bounds__(512)
                            float *__restrict__ out, const int outW);
 
 template <typename T, typename T_TAPS>
-convolve<T, T_TAPS>::convolve(const std::vector<T_TAPS> &taps) : _taps(taps) {
+convolve<T, T_TAPS>::convolve(const std::vector<T_TAPS> &taps,
+                              const convolve_mode_t mode)
+    : _taps(taps), _mode(mode) {
   checkCudaErrors(cudaMalloc(&_dev_taps, taps.size() * sizeof(T)));
   checkCudaErrors(cudaMemcpy(_dev_taps, taps.data(), taps.size() * sizeof(T),
                              cudaMemcpyHostToDevice));
@@ -22,13 +24,15 @@ template <typename T, typename T_TAPS>
 cudaError_t convolve<T, T_TAPS>::launch(const T *in, T *out, int N,
                                         int grid_size, int block_size,
                                         cudaStream_t stream) {
-  if (stream) {
 
+  auto N_out = output_length(N);
+
+  if (stream) {
     _cupy_convolve_float32<<<grid_size, block_size, 0, stream>>>(
-        in, N, _dev_taps, _taps.size(), 2, false, out, N);
+        in, N, _dev_taps, _taps.size(), (int)_mode, false, out, N_out);
   } else {
     _cupy_convolve_float32<<<grid_size, block_size>>>(
-        in, N, _dev_taps, _taps.size(), 2, false, out, N);
+        in, N, _dev_taps, _taps.size(), (int)_mode, false, out, N_out);
   }
   return cudaPeekAtLastError();
 }
@@ -50,6 +54,17 @@ cudaError_t convolve<T, T_TAPS>::occupancy(int *minBlock, int *minGrid) {
       std::min(*minBlock, 512); // Convolve kernels are limited to 512 threads
 
   return rc;
+}
+
+template <typename T, typename T_TAPS>
+int convolve<T, T_TAPS>::output_length(int input_length) {
+  int N_out = input_length;
+  if (_mode == convolve_mode_t::VALID) {
+    N_out = input_length - _taps.size() + 1;
+  } else if (_mode == convolve_mode_t::FULL) {
+    N_out = input_length + _taps.size() - 1;
+  }
+  return N_out;
 }
 
 #define IMPLEMENT_KERNEL(T, T_TAPS) template class convolve<T, T_TAPS>;

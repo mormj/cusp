@@ -7,29 +7,29 @@
 
 using namespace cusp;
 
-template <typename T> void run_test(int N, const std::vector<T> &taps) {
+template <typename T> void run_test(int N, const std::vector<T> &taps, convolve_mode_t mode) {
   std::vector<T> host_input_data(N);
   std::vector<T> expected_output_data(N);
   for (int i = 0; i < N; i++) {
     host_input_data[i] = T(i);
   }
-  std::vector<T> host_output_data(N);
+  
 
   void *dev_input_data;
-  // void *dev_taps;
+
   void *dev_output_data;
 
   checkCudaErrors(cudaMalloc(&dev_input_data, N * sizeof(T)));
-  // checkCudaErrors(cudaMalloc(&dev_taps, taps.size() * sizeof(T)));
-  checkCudaErrors(cudaMalloc(&dev_output_data, N * sizeof(T)));
-
+  
   checkCudaErrors(cudaMemcpy(dev_input_data, host_input_data.data(),
                              N * sizeof(T), cudaMemcpyHostToDevice));
 
-  // checkCudaErrors(cudaMemcpy(dev_taps, taps.data(), taps.size() * sizeof(T),
-  //                            cudaMemcpyHostToDevice));
+  cusp::convolve<T, T> op(taps, mode);
 
-  cusp::convolve<T, T> op(taps);
+  int N_out = op.output_length(N);
+  std::vector<T> host_output_data(N_out);
+  checkCudaErrors(cudaMalloc(&dev_output_data, N_out * sizeof(T)));
+
   int minGrid, blockSize, gridSize;
   op.occupancy(&blockSize, &minGrid);
   gridSize = (N + blockSize - 1) / blockSize;
@@ -39,7 +39,7 @@ template <typename T> void run_test(int N, const std::vector<T> &taps) {
   cudaDeviceSynchronize();
 
   checkCudaErrors(cudaMemcpy(host_output_data.data(), dev_output_data,
-                             N * sizeof(T), cudaMemcpyDeviceToHost));
+  N_out * sizeof(T), cudaMemcpyDeviceToHost));
 
   // EXPECT_EQ(expected_output_data, host_output_data);
 
@@ -50,8 +50,10 @@ template <typename T> void run_test(int N, const std::vector<T> &taps) {
 }
 
 TEST(ConvolveKernel, Basic) {
-  int N = 1024 * 1;
+  int N = 20 * 1;
 
   std::vector<float> ftaps{1,1,1};
-  run_test<float>(N, ftaps);
+  run_test<float>(N, ftaps, convolve_mode_t::FULL);
+  run_test<float>(N, ftaps, convolve_mode_t::VALID);
+  run_test<float>(N, ftaps, convolve_mode_t::SAME);
 }
