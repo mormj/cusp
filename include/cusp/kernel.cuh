@@ -2,6 +2,8 @@
 #pragma once
 
 #include <vector>
+#include <cuda.h>
+#include <cuda_runtime_api.h>
 
 namespace cusp {
 
