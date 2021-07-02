@@ -12,7 +12,6 @@ namespace cusp
         int _ninputs;
         void **_dev_ptr_array;
     public:
-        typedef std::shared_ptr<multiply<T>> sptr;
         multiply(int ninputs = 2);
 
         cudaError_t launch(const std::vector<const void *>& inputs,

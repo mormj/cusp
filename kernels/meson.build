@@ -17,7 +17,7 @@ cusp_cu_files = files([
     'not.cu',
     'add.cu',
     'divide.cu',
-    # 'multiply.cu',
+    'multiply.cu',
     'convolve.cu'])
 
 incdir = ['../include']
