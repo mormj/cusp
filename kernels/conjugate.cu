@@ -2,10 +2,7 @@
 #include <cuda_runtime.h>
 #include "helper_cuda.h"
 #include <cusp/conjugate.cuh>
-<<<<<<< HEAD
-=======
 #include <thrust/complex.h>
->>>>>>> 6cbad9bf6dbba7e689acf6b3d9b2692261ad9080
 
 namespace cusp {
 

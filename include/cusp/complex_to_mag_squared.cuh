@@ -1,10 +1,7 @@
 #pragma once
 
 #include <cusp/kernel.cuh>
-<<<<<<< HEAD
 #include <thrust/complex.h>
-=======
->>>>>>> 6cbad9bf6dbba7e689acf6b3d9b2692261ad9080
 
 namespace cusp
 {
