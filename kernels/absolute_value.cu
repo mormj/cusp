@@ -62,8 +62,8 @@ cudaError_t absolute_value<std::complex<float>>::launch(const std::complex<float
 }
 
 template <typename T>
-cudaError_t absolute_value<T>::launch(const std::vector<const void *> inputs,
-                  const std::vector<void *> outputs, size_t nitems) {
+cudaError_t absolute_value<T>::launch(const std::vector<const void *>& inputs,
+                  const std::vector<void *>& outputs, size_t nitems) {
   return launch((const T*)inputs[0], (T*)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 

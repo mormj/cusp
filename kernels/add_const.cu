@@ -55,8 +55,8 @@ cudaError_t add_const<std::complex<float>>::launch(const std::complex<float> *in
 }
 
 template <typename T>
-cudaError_t add_const<T>::launch(const std::vector<const void *> inputs,
-                                 const std::vector<void *> outputs,
+cudaError_t add_const<T>::launch(const std::vector<const void *>& inputs,
+                                 const std::vector<void *>& outputs,
                                  size_t nitems) {
   return launch((const T *)inputs[0], (T *)outputs[0], _k, nitems, _grid_size,
                 _block_size, _stream);

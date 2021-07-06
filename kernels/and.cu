@@ -24,7 +24,7 @@ template <typename T> and_bitwise<T>::and_bitwise(T ninputs) : _ninputs(ninputs)
 }
 
 template <typename T>
-cudaError_t and_bitwise<T>::launch(const std::vector<const void *> inputs, T *output,
+cudaError_t and_bitwise<T>::launch(const std::vector<const void *>& inputs, T *output,
                            int ninputs, int grid_size, int block_size,
                            size_t nitems, cudaStream_t stream) {
 
@@ -44,8 +44,8 @@ cudaError_t and_bitwise<T>::launch(const std::vector<const void *> inputs, T *ou
 }
 
 template <typename T>
-cudaError_t and_bitwise<T>::launch(const std::vector<const void *> inputs,
-                           const std::vector<void *> outputs, size_t nitems) {
+cudaError_t and_bitwise<T>::launch(const std::vector<const void *>& inputs,
+                           const std::vector<void *>& outputs, size_t nitems) {
   return launch(inputs, (T *)outputs[0], _ninputs, _grid_size, _block_size,
                 nitems, _stream);
 }

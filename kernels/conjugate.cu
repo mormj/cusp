@@ -25,8 +25,8 @@ cudaError_t conjugate::launch(const std::complex<float> *in, std::complex<float>
   return cudaPeekAtLastError();
 }
 
-cudaError_t conjugate::launch(const std::vector<const void *> inputs,
-                  const std::vector<void *> outputs, size_t nitems) {
+cudaError_t conjugate::launch(const std::vector<const void *>& inputs,
+                  const std::vector<void *>& outputs, size_t nitems) {
   return launch((const std::complex<float> *)inputs[0], (std::complex<float> *)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 
