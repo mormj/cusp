@@ -26,8 +26,8 @@ cudaError_t complex_to_mag_squared::launch(const std::complex<float> *in, float 
   return cudaPeekAtLastError();
 }
 
-cudaError_t complex_to_mag_squared::launch(const std::vector<const void *> inputs,
-                  const std::vector<void *> outputs, size_t nitems) {
+cudaError_t complex_to_mag_squared::launch(const std::vector<const void *>& inputs,
+                  const std::vector<void *>& outputs, size_t nitems) {
   return launch((const std::complex<float>*)inputs[0], (float*)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 

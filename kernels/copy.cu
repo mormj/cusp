@@ -26,8 +26,8 @@ cudaError_t copy<T>::launch(const T *in, T *out, int N, int grid_size, int block
 }
 
 template <typename T>
-cudaError_t copy<T>::launch(const std::vector<const void *> inputs,
-                  const std::vector<void *> outputs, size_t nitems) {
+cudaError_t copy<T>::launch(const std::vector<const void *>& inputs,
+                  const std::vector<void *>& outputs, size_t nitems) {
   return launch((const T*)inputs[0], (T*)outputs[0], nitems, _grid_size, _block_size, _stream);
 }
 

@@ -12,13 +12,12 @@ namespace cusp
         int _ninputs;
         void **_dev_ptr_array;
     public:
-        typedef std::shared_ptr<multiply<T>> sptr;
         multiply(int ninputs = 2);
 
-        cudaError_t launch(const std::vector<const void *> inputs,
+        cudaError_t launch(const std::vector<const void *>& inputs,
             T* output, int ninputs, int grid_size, int block_size, size_t nitems, cudaStream_t stream = 0);
-        virtual cudaError_t launch(const std::vector<const void *> inputs,
-            const std::vector<void *> outputs, size_t nitems) override;
+        virtual cudaError_t launch(const std::vector<const void *>& inputs,
+            const std::vector<void *>& outputs, size_t nitems) override;
         virtual cudaError_t occupancy(int *minBlock, int *minGrid);
     };
 

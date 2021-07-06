@@ -18,6 +18,7 @@ hdrs = [
     'nlog10.cuh',
     'not.cuh',
     'or.cuh',
-    'xor.cuh'
+    'xor.cuh',
+    'convolve.cuh'
 ]
 install_headers(hdrs, subdir : 'cusp')
