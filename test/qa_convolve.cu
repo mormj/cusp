@@ -3,8 +3,7 @@
 #include <cusp/convolve.cuh>
 #include <gtest/gtest.h>
 
-#include "helper_cuda.h"
-
+#include <cusp/helper_cuda.h>
 using namespace cusp;
 
 template <typename T>

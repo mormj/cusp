@@ -1,4 +1,4 @@
-#include "helper_cuda.h"
+#include <cusp/helper_cuda.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cusp/convolve.cuh>

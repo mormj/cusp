@@ -2,7 +2,7 @@
 #include <complex>
 #include <thrust/complex.h>
 #include <cuda_runtime.h>
-#include "helper_cuda.h"
+#include <cusp/helper_cuda.h>
 #include <cusp/complex_to_mag_squared.cuh>
 
 namespace cusp {
