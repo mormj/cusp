@@ -1,7 +1,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <complex>
-#include "helper_cuda.h"
+#include <cusp/helper_cuda.h>
 #include <cusp/fft_shift.cuh>
 
 namespace cusp {
