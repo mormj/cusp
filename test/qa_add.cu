@@ -69,10 +69,6 @@ void run_test<std::complex<float>>(int N, int num_inputs)
                N * sizeof(std::complex<float>), cudaMemcpyHostToDevice);
   
     cusp::add<std::complex<float>> op(num_inputs);
-    int minGrid, blockSize, gridSize;
-    op.occupancy(&blockSize, &minGrid);
-    gridSize = (N + blockSize - 1) / blockSize;
-    op.set_block_and_grid(blockSize, gridSize);
 
     std::vector<const void *> input_data_pointer_vec(num_inputs);
     for (int i=0; i<num_inputs; i++)
@@ -80,11 +76,51 @@ void run_test<std::complex<float>>(int N, int num_inputs)
       input_data_pointer_vec[i] = dev_input_data;
     }
 
-    op.launch(input_data_pointer_vec, {dev_output_data}, N);
+    op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(std::complex<float>), cudaMemcpyDeviceToHost);
+  
+    EXPECT_EQ(expected_output_data, host_output_data);
+}
+
+template <> 
+void run_test<std::complex<double>>(int N, int num_inputs)
+{
+    std::vector<std::complex<double>> host_input_data(N);
+    std::vector<std::complex<double>> expected_output_data(N);
+    for (int i = 0; i < N; i++) {
+      host_input_data[i] = (std::complex<double>)(double(i), double(i));
+      double real = num_inputs * host_input_data[i].real();
+      double imag = num_inputs * host_input_data[i].imag();
+      std::complex<double> temp(real, imag);
+      expected_output_data[i] = temp;
+    }
+    std::vector<std::complex<double>> host_output_data(N);
+  
+    void *dev_input_data;
+    void **dev_output_data;
+  
+    cudaMalloc(&dev_input_data, N * sizeof(std::complex<double>));
+    cudaMalloc(&dev_output_data, N * sizeof(std::complex<double>));
+
+    cudaMemcpy(dev_input_data, host_input_data.data(),
+               N * sizeof(std::complex<double>), cudaMemcpyHostToDevice);
+  
+    cusp::add<std::complex<double>> op(num_inputs);
+
+    std::vector<const void *> input_data_pointer_vec(num_inputs);
+    for (int i=0; i<num_inputs; i++)
+    {
+      input_data_pointer_vec[i] = dev_input_data;
+    }
+
+    op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
+  
+    cudaDeviceSynchronize();
+    cudaMemcpy(host_output_data.data(), dev_output_data,
+               N * sizeof(std::complex<double>), cudaMemcpyDeviceToHost);
   
     EXPECT_EQ(expected_output_data, host_output_data);
 }
@@ -94,5 +130,7 @@ TEST(Add, Basic) {
 
   run_test<int16_t>(N, 3);
   run_test<float>(N, 4);
+  run_test<double>(N, 3);
   run_test<std::complex<float>>(N, 3);
+  run_test<std::complex<double>>(N, 3);
 }

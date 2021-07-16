@@ -25,6 +25,18 @@ __global__ void kernel_add_const<thrust::complex<float>>(const thrust::complex<f
   }
 }
 
+template <>
+__global__ void kernel_add_const<thrust::complex<double>>(const thrust::complex<double>* in,
+                                                           thrust::complex<double>* out,
+                                                           thrust::complex<double> k,
+                                                           int N)
+{
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    out[i] = in[i] + k;
+  }
+}
+
 template <typename T>
 cudaError_t add_const<T>::launch(const T *in, T *out, T k, int N, int grid_size,
                                  int block_size, cudaStream_t stream) {
@@ -54,6 +66,25 @@ cudaError_t add_const<std::complex<float>>::launch(const std::complex<float> *in
   return cudaPeekAtLastError();
 }
 
+
+template <>
+cudaError_t add_const<std::complex<double>>::launch(const std::complex<double> *in,
+                                                        std::complex<double> *out,
+                                                        std::complex<double> k,
+                                                        int N, int grid_size, int block_size,
+                                                        cudaStream_t stream) {
+  if (stream) {
+    kernel_add_const<<<grid_size, block_size, 0, stream>>>((const thrust::complex<double> *)in, 
+                                                           (thrust::complex<double> *)out,
+                                                           (thrust::complex<double>)k, N);
+  } else {
+    kernel_add_const<<<grid_size, block_size>>>((const thrust::complex<double> *)in,
+                                                (thrust::complex<double> *) out,
+                                                (thrust::complex<double>)k, N);
+  }
+  return cudaPeekAtLastError();
+}
+
 template <typename T>
 cudaError_t add_const<T>::launch(const std::vector<const void *>& inputs,
                                  const std::vector<void *>& outputs,
@@ -75,6 +106,13 @@ cudaError_t add_const<std::complex<float>>::occupancy(int *minBlock, int *minGri
                                             0, 0);
 }
 
+template <>
+cudaError_t add_const<std::complex<double>>::occupancy(int *minBlock, int *minGrid) {
+  return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
+                                            kernel_add_const<thrust::complex<double>>,
+                                            0, 0);
+}
+
 #define IMPLEMENT_KERNEL(T) template class add_const<T>;
 
 IMPLEMENT_KERNEL(int8_t)
@@ -83,5 +121,7 @@ IMPLEMENT_KERNEL(int32_t)
 IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(float)
 IMPLEMENT_KERNEL(std::complex<float>)
+IMPLEMENT_KERNEL(double)
+IMPLEMENT_KERNEL(std::complex<double>)
 
 } // namespace cusp

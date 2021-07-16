@@ -158,3 +158,12 @@ e = executable('qa_convolve',
     install : false)
 
 test('Test Convolve', e)
+
+e = executable('qa_dot_product',
+    'qa_dot_product.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Dot Product', e)

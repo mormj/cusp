@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cusp/absolute_value.cuh>
+#include <iostream>
 
 using namespace cusp;
 
@@ -24,12 +25,9 @@ void run_test(int N)
                N * sizeof(T), cudaMemcpyHostToDevice);
   
     cusp::absolute_value<T> op;
-    int minGrid, blockSize, gridSize;
-    op.occupancy(&blockSize, &minGrid);
-    gridSize = (N + blockSize - 1) / blockSize;
-    op.set_block_and_grid(blockSize, gridSize);
-    op.launch({dev_input_data}, {dev_output_data}, N);
-  
+    
+    op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N);
+
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
@@ -59,11 +57,7 @@ void run_test<std::complex<float>>(int N)
                N * sizeof(std::complex<float>), cudaMemcpyHostToDevice);
   
     cusp::absolute_value<std::complex<float>> op;
-    int minGrid, blockSize, gridSize;
-    op.occupancy(&blockSize, &minGrid);
-    gridSize = (N + blockSize - 1) / blockSize;
-    op.set_block_and_grid(blockSize, gridSize);
-    op.launch({dev_input_data}, {dev_output_data}, N);
+    op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
@@ -78,9 +72,48 @@ void run_test<std::complex<float>>(int N)
 }
 
 
+template <> 
+void run_test<std::complex<double>>(int N)
+{
+    std::vector<std::complex<double>> host_input_data(N);
+    std::vector<std::complex<double>> expected_output_data(N);
+    for (int i = 0; i < N; i++) {
+      host_input_data[i] = std::complex<double>(double(i), double(i * 2));
+      double mag = sqrt(pow(host_input_data[i].real(), 2) + pow(host_input_data[i].imag(), 2));
+      expected_output_data[i] = std::complex<double>(mag, 0.0);
+    }
+    std::vector<std::complex<double>> host_output_data(N);
+  
+    void *dev_input_data;
+    void *dev_output_data;
+  
+    cudaMalloc(&dev_input_data, N * sizeof(std::complex<double>));
+    cudaMalloc(&dev_output_data, N * sizeof(std::complex<double>));
+  
+    cudaMemcpy(dev_input_data, host_input_data.data(),
+               N * sizeof(std::complex<double>), cudaMemcpyHostToDevice);
+  
+    cusp::absolute_value<std::complex<double>> op;
+    op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N);
+  
+    cudaDeviceSynchronize();
+    cudaMemcpy(host_output_data.data(), dev_output_data,
+               N * sizeof(std::complex<double>), cudaMemcpyDeviceToHost);
+  
+    //EXPECT_EQ(expected_output_data, host_output_data);
+    for (int i = 0; i < (int)expected_output_data.size(); i++) {
+      EXPECT_NEAR(expected_output_data[i].real(),
+                  host_output_data[i].real(),
+                  expected_output_data[i].real() / 10000);
+    }
+}
+
 TEST(AbsKernel, Basic) {
   int N = 1024 * 100;
 
   run_test<int32_t>(N);
+  run_test<float>(N);
+  run_test<double>(N);
   run_test<std::complex<float>>(N);
+  run_test<std::complex<double>>(N);
 }
