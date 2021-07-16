@@ -4,6 +4,8 @@
 #include <cuda_runtime.h>
 #include <cusp/helper_cuda.h>
 #include <cusp/absolute_value.cuh>
+#include <iostream>
+#include <stdio.h>
 
 namespace cusp {
 
@@ -35,6 +37,27 @@ __global__ void kernel_abs<thrust::complex<float>>(const thrust::complex<float> 
   }
 }
 
+template <>
+__global__ void kernel_abs<thrust::complex<double>>(const thrust::complex<double> *in,
+                                                   thrust::complex<double> *out, int N)
+{
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    double start = powf(in[i].real(), 2) + powf(in[i].imag(), 2);
+    double guess = sqrt(start);
+
+    if (guess == 0) {
+      out[i] = thrust::complex<double>(guess, 0);
+    }
+    else {
+      for (int t = 0; t < 15; t++) {
+        guess = 0.5 * (guess + start / guess);
+      }
+      out[i] = thrust::complex<double>(guess, 0);
+    }
+  }
+}
+
 template <typename T>
 cudaError_t absolute_value<T>::launch(const T *in, T *out, int N, int grid_size, int block_size,
                   cudaStream_t stream) {
@@ -61,6 +84,21 @@ cudaError_t absolute_value<std::complex<float>>::launch(const std::complex<float
   return cudaPeekAtLastError();
 }
 
+template <>
+cudaError_t absolute_value<std::complex<double>>::launch(const std::complex<double> *in,
+                                                        std::complex<double> *out, int N,
+                                                        int grid_size, int block_size,
+                                                        cudaStream_t stream) {
+    if (stream) {
+      kernel_abs<<<grid_size, block_size, 0, stream>>>((const thrust::complex<double> *)in, 
+                                                       (thrust::complex<double> *)out, N);
+    } else {
+      kernel_abs<<<grid_size, block_size>>>((const thrust::complex<double> *)in,
+                                            (thrust::complex<double> *) out, N);
+    }
+  return cudaPeekAtLastError();
+}
+
 template <typename T>
 cudaError_t absolute_value<T>::launch(const std::vector<const void *>& inputs,
                   const std::vector<void *>& outputs, size_t nitems) {
@@ -77,6 +115,12 @@ cudaError_t absolute_value<std::complex<float>>::occupancy(int *minBlock, int *m
                                             kernel_abs<thrust::complex<float>>, 0, 0);
 }
 
+template <>
+cudaError_t absolute_value<std::complex<double>>::occupancy(int *minBlock, int *minGrid) {
+  return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
+                                            kernel_abs<thrust::complex<double>>, 0, 0);
+}
+
 #define IMPLEMENT_KERNEL(T) template class absolute_value<T>;
 
 IMPLEMENT_KERNEL(int8_t)
@@ -85,5 +129,7 @@ IMPLEMENT_KERNEL(int32_t)
 IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(std::complex<float>);
 IMPLEMENT_KERNEL(float)
+IMPLEMENT_KERNEL(std::complex<double>);
+IMPLEMENT_KERNEL(double)
 
 } // namespace cusp

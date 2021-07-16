@@ -24,10 +24,6 @@ void run_test(int N, T num_inputs)
                N * sizeof(T), cudaMemcpyHostToDevice);
   
     cusp::and_bitwise<T> op(num_inputs);
-    int minGrid, blockSize, gridSize;
-    op.occupancy(&blockSize, &minGrid);
-    gridSize = (N + blockSize - 1) / blockSize;
-    op.set_block_and_grid(blockSize, gridSize);
 
     std::vector<const void *> input_data_pointer_vec(num_inputs);
     for (int i=0; i<num_inputs; i++)
@@ -35,7 +31,7 @@ void run_test(int N, T num_inputs)
       input_data_pointer_vec[i] = dev_input_data;
     }
 
-    op.launch(input_data_pointer_vec, {dev_output_data}, N);
+    op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,

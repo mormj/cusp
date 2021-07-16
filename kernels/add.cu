@@ -34,6 +34,21 @@ __global__ void kernel_add<thrust::complex<float>>(const thrust::complex<float> 
   }
 }
 
+template <>
+__global__ void kernel_add<thrust::complex<double>>(const thrust::complex<double> **ins,
+                                                   thrust::complex<double> *out,
+                                                   int ninputs, int N) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    thrust::complex<double> *in = (thrust::complex<double> *)(*ins);
+    out[i] = in[i];
+    for (int j = 1; j < ninputs; j++) {
+      in = (thrust::complex<double>*)(*(ins+j));
+      out[i] += in[i]; //(*(in + j))[i];
+    }
+  }
+}
+
 template <typename T> add<T>::add(int ninputs) : _ninputs(ninputs) {
   checkCudaErrors(cudaMalloc(&_dev_ptr_array, sizeof(void *) * _ninputs));
 }
@@ -80,6 +95,28 @@ cudaError_t add<std::complex<float>>::launch(const std::vector<const void *>& in
   return cudaPeekAtLastError();
 }
 
+template <>
+cudaError_t add<std::complex<double>>::launch(const std::vector<const void *>& inputs,
+                           std::complex<double> *output,
+                           int ninputs, int grid_size, int block_size,
+                           size_t nitems, cudaStream_t stream) {
+
+  // There is a better way to do this here - just getting the pointers into
+  // device memory
+  checkCudaErrors(cudaMemcpy(_dev_ptr_array, inputs.data(), sizeof(void *) * ninputs,
+             cudaMemcpyHostToDevice));
+
+  if (stream) {
+    kernel_add<<<grid_size, block_size, 0, stream>>>((const thrust::complex<double> **)_dev_ptr_array,
+                                                     (thrust::complex<double> *)output, ninputs, nitems);
+  } else {
+    kernel_add<<<grid_size, block_size>>>((const thrust::complex<double> **)_dev_ptr_array,
+                                          (thrust::complex<double> *) output,
+                                          ninputs, nitems);
+  }
+  return cudaPeekAtLastError();
+}
+
 template <typename T>
 cudaError_t add<T>::launch(const std::vector<const void *>& inputs,
                            const std::vector<void *>& outputs, size_t nitems) {
@@ -100,6 +137,13 @@ cudaError_t add<std::complex<float>>::occupancy(int *minBlock, int *minGrid) {
                                             0, 0);
 }
 
+template <>
+cudaError_t add<std::complex<double>>::occupancy(int *minBlock, int *minGrid) {
+  return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
+                                            kernel_add<thrust::complex<double>>,
+                                            0, 0);
+}
+
 #define IMPLEMENT_KERNEL(T) template class add<T>;
 
 IMPLEMENT_KERNEL(int8_t)
@@ -108,5 +152,7 @@ IMPLEMENT_KERNEL(int32_t)
 IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(float)
 IMPLEMENT_KERNEL(std::complex<float>)
+IMPLEMENT_KERNEL(double)
+IMPLEMENT_KERNEL(std::complex<double>)
 
 } // namespace cusp
