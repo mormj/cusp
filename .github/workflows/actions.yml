@@ -1,0 +1,46 @@
+name: github-actions
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-20.04
+          cuda: "11.3"
+          gcc: 9
+    env:
+      build_dir: "build"
+      config: "Release"
+    steps:
+    - name: Checkout Project
+      uses: actions/checkout@v2
+    - name: cuda-toolkit
+      uses: Jimver/cuda-toolkit@v0.2.4
+    - name: Installed Cuda Version
+      run: ${{steps.cuda-toolkit.outputs.cuda}}
+    - name: Cuda Install Location
+      run: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
+    - name: NVCC
+      run: nvcc -V
+    - name: Install Ninja
+      run: pip3 install ninja
+    - name: Install Meson
+      run: pip3 install meson
+    - name: Install cmake/gtest
+      run: sudo apt-get install cmake libgtest-dev
+    - name: Check LD_LIBRARY_PATH
+      run: echo $LD_LIBRARY_PATH
+    - name: Look at Environment Variables
+      run: python3 foo.py
+    - name: Meson Setup Build
+      run: meson setup build
+    - name: Ninja Build
+      env:
+        LIBRARY_PATH: ${{env.LD_LIBRARY_PATH}}    
+      run: cd build && ninja
+    - name: Ninja Test
+      env:
+        LIBRARY_PATH: ${{env.LD_LIBRARY_PATH}}
+      run: cd build && ninja test
