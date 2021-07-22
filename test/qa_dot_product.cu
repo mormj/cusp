@@ -33,16 +33,12 @@ void run_test(int N)
     input_data_pointer_vec[0] = dev_input_data;
     input_data_pointer_vec[1] = dev_input_data;
 
-    int blockSize = 256;
-    int gridSize = (N + blockSize - 1) / blockSize;
-
     op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
 
-    op.decimate(host_output_data, gridSize);
     EXPECT_EQ(expected_output_data[0], host_output_data[0]);
 }
 
@@ -75,16 +71,12 @@ void run_test<float>(int N)
     input_data_pointer_vec[0] = dev_input_data;
     input_data_pointer_vec[1] = dev_input_data;
 
-    int blockSize = 256;
-    int gridSize = (N + blockSize - 1) / blockSize;
-
     op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(float), cudaMemcpyDeviceToHost);
 
-    op.decimate(host_output_data, gridSize);
     float error = abs(expected_output_data[0]) / 100000;
     EXPECT_NEAR(expected_output_data[0], host_output_data[0],
                 error);
@@ -119,16 +111,12 @@ void run_test<double>(int N)
     input_data_pointer_vec[0] = dev_input_data;
     input_data_pointer_vec[1] = dev_input_data;
 
-    int blockSize = 256;
-    int gridSize = (N + blockSize - 1) / blockSize;
-
     op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(double), cudaMemcpyDeviceToHost);
 
-    op.decimate(host_output_data, gridSize);
     double error = abs(expected_output_data[0]) / 100000;
     EXPECT_NEAR(expected_output_data[0], host_output_data[0],
                 error);
@@ -165,16 +153,12 @@ void run_test<std::complex<float>>(int N)
     input_data_pointer_vec[0] = dev_input_data;
     input_data_pointer_vec[1] = dev_input_data;
 
-    int blockSize = 256;
-    int gridSize = (N + blockSize - 1) / blockSize;
 
     op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(std::complex<float>), cudaMemcpyDeviceToHost);
-
-    op.decimate(host_output_data, gridSize);
 
     float real_error = abs(expected_output_data[0].real()) / 100000;
     float imag_error = abs(expected_output_data[0].imag()) / 100000;
@@ -215,16 +199,11 @@ void run_test<std::complex<double>>(int N)
     input_data_pointer_vec[0] = dev_input_data;
     input_data_pointer_vec[1] = dev_input_data;
 
-    int blockSize = 256;
-    int gridSize = (N + blockSize - 1) / blockSize;
-
     op.launch_default_occupancy({input_data_pointer_vec}, {dev_output_data}, N);
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(std::complex<double>), cudaMemcpyDeviceToHost);
-
-    op.decimate(host_output_data, gridSize);
 
     double real_error = abs(expected_output_data[0].real()) / 100000;
     double imag_error = abs(expected_output_data[0].imag()) / 100000;
@@ -237,7 +216,7 @@ void run_test<std::complex<double>>(int N)
 
 
 TEST(DotProductKernel, Basic) {
-  int N = 1000;
+  int N = 10;
 
   run_test<int32_t>(N);
   run_test<int64_t>(N);

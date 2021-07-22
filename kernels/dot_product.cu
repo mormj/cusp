@@ -95,14 +95,36 @@ __global__ void kernel_dot_product<thrust::complex<double>>(
 }
 
 
-// Due to the nature of reduction, decimation is only possible on the cpu.
-// This might interfere with gnuradio buffers so watch out for that.
-// Look into writing a non reduced dot product kernel as well and see if that
-// is a bit more applicable for gnuradio.
+// This is a really inneficient way of performing decimation,
+// but unfortunately I'm not sure of a better way. A kernel
+// implementation allows us to calculate the numeric value of
+// our dot product before copying memory back to the host,
+// whereas a cpu function requires memory to have already 
+// been copied back to the host, which can be annoying when
+// working with gnuradio blocks.
 template <typename T>
-void dot_product<T>::decimate (std::vector<T>& outputs, const int gridSize) {
+__global__ void kernel_decimate(T * outputs, const int gridSize) {
   for (int i = 1; i < gridSize; i++) {
     outputs[0] += outputs[i];
+    outputs[i] = 0;
+  }
+}
+
+template <>
+__global__ void kernel_decimate<thrust::complex<float>>(
+  thrust::complex<float> * outputs, const int gridSize) {
+  for (int i = 1; i < gridSize; i++) {
+    outputs[0] += outputs[i];
+    outputs[i] = thrust::complex<float>(0.0, 0.0);
+  }
+}
+
+template <>
+__global__ void kernel_decimate<thrust::complex<double>>(
+  thrust::complex<double> * outputs, const int gridSize) {
+  for (int i = 1; i < gridSize; i++) {
+    outputs[0] += outputs[i];
+    outputs[i] = thrust::complex<double>(0.0, 0.0);
   }
 }
 
@@ -120,11 +142,13 @@ cudaError_t dot_product<T>::launch(const std::vector<const void *> &inputs,
           (const T *)inputs[0],
           (const T *)inputs[1],
           (T *)output, nitems);
+      kernel_decimate<<<1, 1, 0, stream>>>(output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const T *)inputs[0],
           (const T *)inputs[1],
           (T *)output, nitems);
+      kernel_decimate<<<1, 1>>>(output, grid_size);
     }
     return cudaPeekAtLastError();
 }
@@ -139,11 +163,15 @@ cudaError_t dot_product<std::complex<float>>::launch(const std::vector<const voi
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
           (thrust::complex<float> *)output, nitems);
+      kernel_decimate<<<1, 1, 0, stream>>>(
+          (thrust::complex<float> *)output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
           (thrust::complex<float> *)output, nitems);
+      kernel_decimate<<<1, 1>>>(
+          (thrust::complex<float> *)output, grid_size);
     }
     return cudaPeekAtLastError();
 }
@@ -159,11 +187,15 @@ cudaError_t dot_product<std::complex<double>>::launch(const std::vector<const vo
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
           (thrust::complex<double> *)output, nitems);
+      kernel_decimate<<<1, 1, 0, stream>>>(
+          (thrust::complex<double> *)output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
           (thrust::complex<double> *)output, nitems);
+      kernel_decimate<<<1, 1>>>(
+          (thrust::complex<double> *)output, grid_size);
     }
     return cudaPeekAtLastError();
 }
@@ -182,22 +214,6 @@ template <typename T> cudaError_t dot_product<T>::occupancy(int *minBlock, int *
   *minGrid = default_min_grid;
   return cudaPeekAtLastError();
 }
-
-// template <typename T> cudaError_t dot_product<T>::occupancy(int *minBlock, int *minGrid) {
-//   return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock, kernel_dot_product<T>, 0, 0);
-// }
-
-// template <>
-// cudaError_t dot_product<std::complex<float>>::occupancy(int *minBlock, int *minGrid) {
-//   return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
-//                                             kernel_dot_product<thrust::complex<float>>, 0, 0);
-// }
-
-// template <>
-// cudaError_t dot_product<std::complex<double>>::occupancy(int *minBlock, int *minGrid) {
-//   return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,
-//                                             kernel_dot_product<thrust::complex<double>>, 0, 0);
-// }
 
 #define IMPLEMENT_KERNEL(T) template class dot_product<T>;
 
