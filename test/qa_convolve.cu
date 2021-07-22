@@ -29,11 +29,7 @@ void run_test(int N, const std::vector<T> &taps, convolve_mode_t mode) {
   std::vector<T> host_output_data(N_out);
   checkCudaErrors(cudaMalloc(&dev_output_data, N_out * sizeof(T)));
 
-  int minGrid, blockSize, gridSize;
-  op.occupancy(&blockSize, &minGrid);
-  gridSize = (N + blockSize - 1) / blockSize;
-  op.set_block_and_grid(blockSize, gridSize);
-  checkCudaErrors(op.launch({dev_input_data}, {dev_output_data}, N));
+  checkCudaErrors(op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N));
 
   cudaDeviceSynchronize();
 

@@ -1,6 +1,5 @@
 #include <cuda.h>
 #include <complex>
-#include <thrust/complex.h>
 #include <cuda_runtime.h>
 #include <cusp/helper_cuda.h>
 #include <cusp/absolute_value.cuh>

@@ -167,3 +167,30 @@ e = executable('qa_dot_product',
     install : false)
 
 test('Test Dot Product', e)
+
+e = executable('qa_moving_average',
+    'qa_moving_average.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Moving Average', e)
+
+e = executable('qa_threshold',
+    'qa_threshold.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Threshold', e)
+
+e = executable('qa_max',
+    'qa_max.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Max', e)
