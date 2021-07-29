@@ -194,3 +194,12 @@ e = executable('qa_max',
     install : false)
 
 test('Test Max', e)
+
+e = executable('qa_deinterleave',
+    'qa_deinterleave.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Deinterleave', e)

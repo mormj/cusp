@@ -2,7 +2,7 @@
 #
 
 project('newsched', 'cpp', 
-  version : '0.0.0',
+  version : '0.0.1',
   license : 'GPLv3',
   default_options : ['cpp_std=c++14'])
 
