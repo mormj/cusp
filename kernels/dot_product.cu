@@ -15,14 +15,14 @@ namespace cusp {
 // Code is based on "cuda by example: an introduction to general purpose gpu programming."
 // I would assume this needs to be licensed / cited but I'm not certain how.
 template <typename T>
-__global__ void kernel_dot_product(const T *in1, const T *in2, T *out, int N) {
+__global__ void kernel_dot_product(const T *in1, const T *in2, T *out, size_t stride, int N) {
 
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   __shared__ T cache[default_min_block];
   T temp = (T)0;
 
   while (i < N) {
-    temp += in1[i] * in2[i];
+    temp += in1[stride*i] * in2[i];
     i += blockDim.x * gridDim.x;
   }
 
@@ -42,14 +42,14 @@ __global__ void kernel_dot_product(const T *in1, const T *in2, T *out, int N) {
 template <>
 __global__ void kernel_dot_product<thrust::complex<float>>(
   const thrust::complex<float> *in1, const thrust::complex<float> *in2,
-  thrust::complex<float> *out, int N) {
+  thrust::complex<float> *out, size_t stride, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ thrust::complex<float> cache[default_min_block];
     thrust::complex<float> temp(0, 0);
 
     while (i < N) {
       // temp += in1[i] * in2[i];
-      temp += in1[i] *  thrust::complex<float>(in2[i].real(), -1.0 * in2[i].imag());
+      temp += in1[stride*i] *  thrust::complex<float>(in2[i].real(), -1.0 * in2[i].imag());
       i += blockDim.x * gridDim.x;
     }
 
@@ -70,14 +70,14 @@ __global__ void kernel_dot_product<thrust::complex<float>>(
 template <>
 __global__ void kernel_dot_product<thrust::complex<double>>(
   const thrust::complex<double> *in1, const thrust::complex<double> *in2,
-  thrust::complex<double> *out, int N) {
+  thrust::complex<double> *out, size_t stride, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ thrust::complex<double> cache[default_min_block];
     thrust::complex<double> temp(0, 0);
 
     while (i < N) {
       // temp += in1[i] * in2[i];
-      temp += in1[i] *  thrust::complex<double>(in2[i].real(), -1.0 * in2[i].imag());
+      temp += in1[stride*i] *  thrust::complex<double>(in2[i].real(), -1.0 * in2[i].imag());
       i += blockDim.x * gridDim.x;
     }
 
@@ -128,26 +128,26 @@ __global__ void kernel_decimate<thrust::complex<double>>(
   }
 }
 
-template <typename T> dot_product<T>::dot_product() {
-    checkCudaErrors(cudaMalloc(&_dev_ptr_array, sizeof(void *) * 2));
+template <typename T> dot_product<T>::dot_product(size_t stride) : _stride(stride) {
+
 }
 
 template <typename T>
 cudaError_t dot_product<T>::launch(const std::vector<const void *> &inputs,
-                                   T *output, int grid_size, int block_size,
+                                   T *output, size_t stride, int grid_size, int block_size,
                                    size_t nitems, cudaStream_t stream) {
 
     if (stream) {
       kernel_dot_product<<<grid_size, block_size, 0, stream>>>(
           (const T *)inputs[0],
           (const T *)inputs[1],
-          (T *)output, nitems);
+          (T *)output, stride, nitems);
       kernel_decimate<<<1, 1, 0, stream>>>(output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const T *)inputs[0],
           (const T *)inputs[1],
-          (T *)output, nitems);
+          (T *)output, stride, nitems);
       kernel_decimate<<<1, 1>>>(output, grid_size);
     }
     return cudaPeekAtLastError();
@@ -155,21 +155,21 @@ cudaError_t dot_product<T>::launch(const std::vector<const void *> &inputs,
 
 template <>
 cudaError_t dot_product<std::complex<float>>::launch(const std::vector<const void *> &inputs,
-                                   std::complex<float> *output, int grid_size, int block_size,
+                                   std::complex<float> *output, size_t stride, int grid_size, int block_size,
                                    size_t nitems, cudaStream_t stream) {
 
     if (stream) {
       kernel_dot_product<<<grid_size, block_size, 0, stream>>>(
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
-          (thrust::complex<float> *)output, nitems);
+          (thrust::complex<float> *)output, stride, nitems);
       kernel_decimate<<<1, 1, 0, stream>>>(
           (thrust::complex<float> *)output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
-          (thrust::complex<float> *)output, nitems);
+          (thrust::complex<float> *)output, stride, nitems);
       kernel_decimate<<<1, 1>>>(
           (thrust::complex<float> *)output, grid_size);
     }
@@ -179,21 +179,21 @@ cudaError_t dot_product<std::complex<float>>::launch(const std::vector<const voi
 
 template <>
 cudaError_t dot_product<std::complex<double>>::launch(const std::vector<const void *> &inputs,
-                                   std::complex<double> *output, int grid_size, int block_size,
+                                   std::complex<double> *output, size_t stride, int grid_size, int block_size,
                                    size_t nitems, cudaStream_t stream) {
 
     if (stream) {
       kernel_dot_product<<<grid_size, block_size, 0, stream>>>(
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
-          (thrust::complex<double> *)output, nitems);
+          (thrust::complex<double> *)output, stride, nitems);
       kernel_decimate<<<1, 1, 0, stream>>>(
           (thrust::complex<double> *)output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
-          (thrust::complex<double> *)output, nitems);
+          (thrust::complex<double> *)output, stride, nitems);
       kernel_decimate<<<1, 1>>>(
           (thrust::complex<double> *)output, grid_size);
     }
@@ -205,7 +205,7 @@ template <typename T>
 cudaError_t dot_product<T>::launch(const std::vector<const void *> &inputs,
                                    const std::vector<void *> &outputs,
                                    size_t nitems) {
-  return launch(inputs, (T *)outputs[0], _grid_size, _block_size,
+  return launch(inputs, (T *)outputs[0], _stride, _grid_size, _block_size,
                 nitems, _stream);
 }
 

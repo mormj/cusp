@@ -9,12 +9,15 @@ namespace cusp
     class dot_product : public kernel
     {
     private:
-        void **_dev_ptr_array;
+        size_t _stride = 1;
+
     public:
-        dot_product();
+        // Stride of 2 on the input allows for interleaved complex data to be 
+        // filtered with real taps
+        dot_product(size_t stride = 1);
 
         cudaError_t launch(const std::vector<const void *>& inputs,
-            T* output, int grid_size, int block_size, size_t nitems,
+            T* output, size_t stride, int grid_size, int block_size, size_t nitems,
             cudaStream_t stream = 0);
 
         virtual cudaError_t launch(const std::vector<const void *>& inputs,
