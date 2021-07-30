@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <complex>
 #include <cusp/add.cuh>
+#include <cusp/helper_cuda.h>
 
 using namespace cusp;
 
@@ -16,7 +17,7 @@ void run_test(int N, int num_inputs)
     std::vector<T> host_output_data(N);
   
     void *dev_input_data;
-    void **dev_output_data;
+    void *dev_output_data;
   
     cudaMalloc(&dev_input_data, N * sizeof(T));
     cudaMalloc(&dev_output_data, N * sizeof(T));
@@ -36,7 +37,7 @@ void run_test(int N, int num_inputs)
       input_data_pointer_vec[i] = dev_input_data;
     }
 
-    op.launch(input_data_pointer_vec, {dev_output_data}, N);
+    checkCudaErrors(op.launch(input_data_pointer_vec, {dev_output_data}, N));
   
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,

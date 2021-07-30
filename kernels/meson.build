@@ -22,7 +22,8 @@ cusp_cu_files = files([
     'dot_product.cu',
     'moving_average.cu',
     'threshold.cu',
-    'max.cu'])
+    'max.cu',
+    'deinterleave.cu'])
 
 incdir = ['../include']
 
