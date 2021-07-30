@@ -39,7 +39,7 @@ public:
     }
     int gridSize = (nitems + _min_block - 1) / _min_block;
     set_block_and_grid(_min_block, gridSize);
-    return launch({inputs}, {outputs}, nitems);
+    return launch(inputs, outputs, nitems);
   }
 
   virtual cudaError_t occupancy(int *minBlock, int *minGrid) = 0;
