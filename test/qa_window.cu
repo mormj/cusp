@@ -54,16 +54,17 @@ void run_test<float>(int N, float * window, int window_length)
   
     void *dev_input_data;
     void *dev_output_data;
+    float * dev_window;
   
     cudaMalloc(&dev_input_data, N * sizeof(float));
     cudaMalloc(&dev_output_data, N * sizeof(float));
+    cudaMalloc(&dev_window, N * sizeof(float));
   
     cudaMemcpy(dev_input_data, host_input_data.data(),
                N * sizeof(float), cudaMemcpyHostToDevice);
-
-    printf("Length of Window: %d\n", window_length);
+    cudaMemcpy(dev_window, window, N * sizeof(float), cudaMemcpyHostToDevice);
   
-    cusp::window<float> op(window, window_length);
+    cusp::window<float> op(dev_window, window_length);
     int minGrid, blockSize, gridSize;
     op.occupancy(&blockSize, &minGrid);
     gridSize = (N + blockSize - 1) / blockSize;
@@ -73,6 +74,8 @@ void run_test<float>(int N, float * window, int window_length)
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(float), cudaMemcpyDeviceToHost);
+
+    
 
     EXPECT_EQ(expected_output_data, host_output_data);
 }
