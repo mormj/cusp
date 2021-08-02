@@ -167,3 +167,12 @@ e = executable('qa_dot_product',
     install : false)
 
 test('Test Dot Product', e)
+
+e = executable('qa_window',
+    'qa_window.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Window', e)
