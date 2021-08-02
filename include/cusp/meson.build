@@ -21,6 +21,6 @@ hdrs = [
     'xor.cuh',
     'convolve.cuh',
     'dot_product.cuh',
-    'deinterleave.cuh'
+    'window.cuh'
 ]
 install_headers(hdrs, subdir : 'cusp')

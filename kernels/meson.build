@@ -20,10 +20,7 @@ cusp_cu_files = files([
     'multiply.cu',
     'convolve.cu',
     'dot_product.cu',
-    'moving_average.cu',
-    'threshold.cu',
-    'max.cu',
-    'deinterleave.cu'])
+    'window.cu'])
 
 incdir = ['../include']
 
