@@ -30,7 +30,7 @@ jobs:
       run: pip3 install meson
     - name: Install cmake/gtest
       run: sudo apt-get install cmake libgtest-dev
-    - name: Check LD_LIBRARY_PATH
+    - name: Look at LD_LIBRARY_PATH
       run: echo $LD_LIBRARY_PATH
     - name: Look at Environment Variables
       run: python3 foo.py
