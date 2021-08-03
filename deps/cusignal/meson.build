@@ -11,7 +11,8 @@
 #   install_dir : 'subdir')
 
 cusignal_cu_files = files([
-    'cpp/src/convolution/_convolution.cu'
+    'cpp/src/convolution/_convolution.cu',
+    'cpp/src/filtering/_channelizer.cu'
 ])
 
 cusignal = library('cusignal', 
