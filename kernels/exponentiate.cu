@@ -31,12 +31,6 @@ template <> __global__ void kernel_exponentiate<thrust::complex<float>>(
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
     out[i] = thrust::pow(in[i], e);
-    // float theta = atan2(in[i].imag(), in[i].real());
-    // float mag = sqrtf(powf(in[i].real(), 2) + powf(in[i].imag(), 2));
-    // out[i] = thrust::complex<float>(powf(mag, e) * cos(theta * e),
-    //                                 powf(mag, e) * sin(theta * e));
-    //out[i].x = powf(mag, e) * cos(theta * e); 
-    //out[i].y = powf(mag, e) * sin(theta * e);
   }
 }
 

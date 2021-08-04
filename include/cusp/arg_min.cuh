@@ -11,7 +11,7 @@ namespace cusp
     private:
         int _ninputs;
     public:
-        arg_min(int ninputs = 1);
+        arg_min(int ninputs) : _ninputs(ninputs) {};
 
         cudaError_t launch(const std::vector<const void *>& inputs,
             T* output, int ninputs, int grid_size, int block_size,

@@ -44,7 +44,6 @@ cudaError_t threshold<T>::occupancy(int *minBlock, int *minGrid) {
 #define IMPLEMENT_KERNEL(T) template class threshold<T>;
 
 
-// does complex support make sense here?
 IMPLEMENT_KERNEL(int8_t)
 IMPLEMENT_KERNEL(int16_t)
 IMPLEMENT_KERNEL(int32_t)

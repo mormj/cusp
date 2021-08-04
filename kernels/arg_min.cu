@@ -43,7 +43,6 @@ __global__ void kernel_arg_min(const T* ins, T* out,
     }
     
     if(cacheIndex == 0) {
-        // out[blockIdx.x] = cache[0];
         int index = blockIdx.x + stream_number * grid_size;
         out[index] = cache[0].real();
         out[index + ninputs * grid_size] = cache[0].imag();
@@ -51,10 +50,9 @@ __global__ void kernel_arg_min(const T* ins, T* out,
 }
 
 
-// first index is index of min value, second index is stream number
+// First index is index of min value, second index is stream number
 template <typename T>
-__global__ void decimate_templated(T* out, int grid_size,
-    int ninputs) {
+__global__ void decimate_arg_min(T* out, int grid_size, int ninputs) {
     int min_index = 0;
     int min_stream = 0;
     int offset = ninputs * grid_size;
@@ -70,9 +68,6 @@ __global__ void decimate_templated(T* out, int grid_size,
     out[0] = (T)out[min_index + offset];
     out[1] = (T)min_stream; 
 }
-
-
-template <typename T> arg_min<T>::arg_min(int ninputs) : _ninputs(ninputs) {}
 
 template <typename T>
 cudaError_t arg_min<T>::launch(const std::vector<const void *> &inputs,
@@ -91,7 +86,7 @@ cudaError_t arg_min<T>::launch(const std::vector<const void *> &inputs,
             );
         }
         cudaDeviceSynchronize();
-        decimate_templated<<<1, 1, 0, stream>>>(output, grid_size, ninputs);
+        decimate_arg_min<<<1, 1, 0, stream>>>(output, grid_size, ninputs);
     }
     else {
         for (int i = 0; i < ninputs; i++) {
@@ -102,7 +97,7 @@ cudaError_t arg_min<T>::launch(const std::vector<const void *> &inputs,
             );
         }
         cudaDeviceSynchronize();
-        decimate_templated<<<1, 1>>>(output, grid_size, ninputs);
+        decimate_arg_min<<<1, 1>>>(output, grid_size, ninputs);
     }
     return cudaPeekAtLastError();
 }
@@ -126,10 +121,6 @@ template <typename T> cudaError_t arg_min<T>::occupancy(int *minBlock, int *minG
 IMPLEMENT_KERNEL(int8_t)
 IMPLEMENT_KERNEL(int16_t)
 IMPLEMENT_KERNEL(int32_t)
-// For some odd reason, arg_min works with every single
-// other type except for int64_t. I have no clue why this
-// is the case.
-IMPLEMENT_KERNEL(int64_t)
 IMPLEMENT_KERNEL(float)
 IMPLEMENT_KERNEL(double)
 

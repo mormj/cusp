@@ -1,5 +1,6 @@
 #include <cusp/helper_cuda.h>
 #include <complex>
+#include <limits>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cusp/max.cuh>
@@ -9,19 +10,16 @@
 
 namespace cusp {
 
-// Kernel identifies the maximum value within each block. In a seperate kernel,
-// we go through output and either record the absolute max value or identify
-// the maximum value from each input stream
-
 template <typename T>
-__global__ void kernel_max(const T* ins, T* out, int stream_number, int grid_size, int N)
+__global__ void kernel_max(const T* ins, T* out, T numeric_min,
+    int stream_number, int grid_size, int N)
 {
     __shared__ T cache[default_min_block];
 
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     int cacheIndex = threadIdx.x;
 
-    T temp = ins[i];
+    T temp = numeric_min;
     while (i < N) {
     	if(ins[i] > temp)
     		temp = ins[i];
@@ -43,51 +41,32 @@ __global__ void kernel_max(const T* ins, T* out, int stream_number, int grid_siz
     }
     
     if(cacheIndex == 0) {
-        // out[blockIdx.x] = cache[0];
         out[blockIdx.x + stream_number * grid_size] = cache[0];
     }
 }
 
-
-// Internal functions that cleans output stream of extraneous data.
-// These kernels might need cleaning up eventually to make better use
-// of parallelism. I'm thinking you launch the kernels with the normal
-// bounds of grid_size and block_size, but you only look at kernels if 
-// blockDim.x * blockIdx.x + threadIdx.x < grid_size * ninputs. However, 
-// grid_size * ninputs is usually really small, so I'm not certain if
-// there's really any notable benefits in trying to parallelize these
-// kernels?
-
 template <typename T>
-__global__ void kernel_get_max_single(T * out, int grid_size, int ninputs) {
+__global__ void decimate_max_single(T * out, int grid_size, int ninputs) {
     T max = out[0];
     for (int i = 0; i < ninputs * grid_size; i++) {
         if (max < out[i]) max = out[i];
-        out[i] = (T)0;
     }
     out[0] = max;
 }
 
 template <typename T>
-__global__ void kernel_get_max_multiple(T * out, int grid_size, int ninputs) {
+__global__ void decimate_max_multiple(T * out, int grid_size, int ninputs) {
+    T max = out[0];
     for (int stream_number = 0; stream_number < ninputs; stream_number++) {
-        T max = (T)0;
         for (int block_index = 0; block_index < grid_size; block_index++) {
-            if (out[stream_number * grid_size + block_index] > max) {
-                max = out[stream_number * grid_size + block_index];
+            int index = stream_number * grid_size + block_index;
+            if (out[index] > max) {
+                max = out[index];
             }
-            out[stream_number * grid_size + block_index] = (T)0;
         }
         out[stream_number] = max;
     }
 }
-
-
-// design two kernels, one with vlen = 1
-// and one with vlen = len
-
-template <typename T> max<T>::max(int ninputs, bool multi_output) : _ninputs(ninputs),
-    _multi_output(multi_output) {}
 
 template <typename T>
 cudaError_t max<T>::launch(const std::vector<const void *> &inputs,
@@ -95,20 +74,23 @@ cudaError_t max<T>::launch(const std::vector<const void *> &inputs,
                                 int grid_size, int block_size, size_t nitems,
                                 cudaStream_t stream) {
 
+    T numeric_min = std::numeric_limits<T>::min();
+
     if (stream) {
         for (int i = 0; i < ninputs; i++) {
             kernel_max<<<grid_size, block_size, 0, stream>>>(
                 (const T *)inputs[i],
-                (T *)output, i, grid_size, nitems
+                (T *)output, numeric_min, i, grid_size, nitems
             );
         }
+        cudaDeviceSynchronize();
         if (multi_output) {
-            kernel_get_max_multiple<<<1, 1, 0, stream>>>(
-                (T *) output, grid_size, ninputs
+            decimate_max_multiple<<<1, 1, 0, stream>>>(
+                output, grid_size, ninputs
             );
         } else {
-            kernel_get_max_single<<<1, 1, 0, stream>>>(
-                (T *)output, grid_size, ninputs
+            decimate_max_single<<<1, 1, 0, stream>>>(
+                output, grid_size, ninputs
             );
         }
     }
@@ -116,16 +98,17 @@ cudaError_t max<T>::launch(const std::vector<const void *> &inputs,
         for (int i = 0; i < ninputs; i++) {
             kernel_max<<<grid_size, block_size>>>(
                 (const T *)inputs[i],
-                (T *)output, i, grid_size, nitems
+                (T *)output, numeric_min, i, grid_size, nitems
             );
         }
+        cudaDeviceSynchronize();
         if (multi_output) {
-            kernel_get_max_multiple<<<1, 1>>>(
-                (T *) output, grid_size, ninputs
+            decimate_max_multiple<<<1, 1>>>(
+                output, grid_size, ninputs
             );
         } else {
-            kernel_get_max_single<<<1, 1>>>(
-                (T *)output, grid_size, ninputs
+            decimate_max_single<<<1, 1>>>(
+                output, grid_size, ninputs
             );
         }
     }

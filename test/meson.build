@@ -203,3 +203,57 @@ e = executable('qa_deinterleave',
     install : false)
 
 test('Test Deinterleave', e)
+
+e = executable('qa_arg_max',
+    'qa_arg_max.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Arg Max', e)
+
+e = executable('qa_arg_min',
+    'qa_arg_min.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Arg Min', e)
+
+e = executable('qa_keep_m_in_n',
+    'qa_keep_m_in_n.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Keep M In N', e)
+
+e = executable('qa_keep_one_in_n',
+    'qa_keep_one_in_n.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Keep One In N', e)
+
+e = executable('qa_subtract',
+    'qa_subtract.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Subtract', e)
+
+e = executable('qa_min',
+    'qa_min.cu',
+    include_directories : incdir,
+    link_language : 'cpp',
+    dependencies : [cusp_dep, gtest_dep],
+    install : false)
+
+test('Test Min', e)

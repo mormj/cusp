@@ -19,7 +19,7 @@ __global__ void kernel_xor(const T **ins, T *out, int ninputs, int N) {
   }
 }
 
-template <typename T> xor_bitwise<T>::xor_bitwise(T ninputs) : _ninputs(ninputs) {
+template <typename T> xor_bitwise<T>::xor_bitwise(int ninputs) : _ninputs(ninputs) {
   checkCudaErrors(cudaMalloc(&_dev_ptr_array, sizeof(void *) * _ninputs));
 }
 

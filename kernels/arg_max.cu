@@ -43,7 +43,6 @@ __global__ void kernel_arg_max(const T* ins, T* out,
     }
     
     if(cacheIndex == 0) {
-        // out[blockIdx.x] = cache[0];
         int index = blockIdx.x + stream_number * grid_size;
         out[index] = cache[0].real();
         out[index + ninputs * grid_size] = cache[0].imag();
@@ -51,28 +50,25 @@ __global__ void kernel_arg_max(const T* ins, T* out,
 }
 
 
-// first index of output vector is index where max value occurs,
+// First index of output vector is index where max value occurs,
 // second index is input stream where max occurs
 template <typename T>
 __global__ void decimate_arg_max(T *out, int grid_size, int ninputs) {
-    int maxIdx = 0;
-    int maxStream = 0;
+    int max_index = 0;
+    int max_stream = 0;
     int offset = ninputs * grid_size;
     for (int stream_number = 0; stream_number < ninputs; stream_number++) {
         for (int block_index = 0; block_index < grid_size; block_index++) {
             int index = stream_number * grid_size + block_index;
-            if (out[index] > out[maxIdx]) {
-                maxIdx = index;
-                maxStream = stream_number;
+            if (out[index] > out[max_index]) {
+                max_index = index;
+                max_stream = stream_number;
             }
         }
     }
-    out[0] = out[maxIdx + offset];
-    out[1] = maxStream;
+    out[0] = (T)out[max_index + offset];
+    out[1] = (T)max_stream;
 }
-
-
-template <typename T> arg_max<T>::arg_max(int ninputs) : _ninputs(ninputs) {}
 
 template <typename T>
 cudaError_t arg_max<T>::launch(const std::vector<const void *> &inputs,

@@ -45,10 +45,6 @@ void run_test(int N, int m, int window)
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
-
-    // for (int i = 0; i < (N / window + 1) * m; i++) {
-    //     std::cout << host_output_data[i] << std::endl;
-    // }
   
     EXPECT_EQ(expected_output_data, host_output_data);
 }
@@ -92,10 +88,6 @@ void run_test<std::complex<float>>(int N, int m, int window)
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(std::complex<float>), cudaMemcpyDeviceToHost);
-
-    // for (int i = 0; i < (N / window + 1) * m; i++) {
-    //     std::cout << host_output_data[i] << std::endl;
-    // }
   
     EXPECT_EQ(expected_output_data, host_output_data);
 }
