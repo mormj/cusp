@@ -32,20 +32,24 @@ cudaError_t deinterleave::launch(const uint8_t *input,
                                  int grid_size, int block_size, size_t nitems,
                                  cudaStream_t stream) {
 
-  // There is a better way to do this here - just getting the pointers into
-  // device memory
-  checkCudaErrors(cudaMemcpy(_dev_ptr_array, outputs.data(),
-                             sizeof(void *) * nstreams,
-                             cudaMemcpyHostToDevice));
-
   if (stream) {
+    // There is a better way to do this here - just getting the pointers into
+    // device memory
+    checkCudaErrors(cudaMemcpyAsync(_dev_ptr_array, outputs.data(),
+                                    sizeof(void *) * nstreams,
+                                    cudaMemcpyHostToDevice, stream));
     kernel_deinterleave<<<grid_size, block_size, 0, stream>>>(
-        input, (uint8_t **)_dev_ptr_array, nstreams, itemsperstream,
-        itemsize, nitems);
+        input, (uint8_t **)_dev_ptr_array, nstreams, itemsperstream, itemsize,
+        nitems * itemsize);
   } else {
+    // There is a better way to do this here - just getting the pointers into
+    // device memory
+    checkCudaErrors(cudaMemcpy(_dev_ptr_array, outputs.data(),
+                               sizeof(void *) * nstreams,
+                               cudaMemcpyHostToDevice));
     kernel_deinterleave<<<grid_size, block_size>>>(
-        input, (uint8_t **)_dev_ptr_array, nstreams, itemsperstream,
-        itemsize, nitems);
+        input, (uint8_t **)_dev_ptr_array, nstreams, itemsperstream, itemsize,
+        nitems * itemsize);
   }
   return cudaPeekAtLastError();
 }
@@ -53,9 +57,9 @@ cudaError_t deinterleave::launch(const uint8_t *input,
 cudaError_t deinterleave::launch(const std::vector<const void *> &inputs,
                                  const std::vector<void *> &outputs,
                                  size_t nitems) {
-  return launch((const uint8_t *)inputs[0], outputs, _nstreams, _itemsperstream, _itemsize,
-                _grid_size, _block_size, nitems, _stream);
-} 
+  return launch((const uint8_t *)inputs[0], outputs, _nstreams, _itemsperstream,
+                _itemsize, _grid_size, _block_size, nitems, _stream);
+}
 
 cudaError_t deinterleave::occupancy(int *minBlock, int *minGrid) {
   return cudaOccupancyMaxPotentialBlockSize(minGrid, minBlock,

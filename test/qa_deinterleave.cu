@@ -22,10 +22,10 @@ template <typename T> void run_test(int N, int nstreams, int blocksize) {
 
 
   cusp::deinterleave op(nstreams, blocksize, itemsize);
-  int minGrid, blockSize, gridSize;
-  op.occupancy(&blockSize, &minGrid);
-  gridSize = (N + blockSize - 1) / blockSize;
-  op.set_block_and_grid(blockSize, gridSize);
+  // int minGrid, blockSize, gridSize;
+  // op.occupancy(&blockSize, &minGrid);
+  // gridSize = (N*itemsize + blockSize - 1) / blockSize;
+  // op.set_block_and_grid(blockSize, gridSize);
 
   std::vector<void *> output_data_pointer_vec(nstreams);
   for (int i = 0; i < nstreams; i++) {
@@ -43,7 +43,7 @@ template <typename T> void run_test(int N, int nstreams, int blocksize) {
   // virtual cudaError_t launch(const std::vector<const void *> &inputs,
   //   const std::vector<void *> &outputs,
   //   size_t nitems) override;
-  checkCudaErrors(op.launch({dev_input_data}, output_data_pointer_vec, N * sizeof(T)));
+  checkCudaErrors(op.launch_default_occupancy({dev_input_data}, output_data_pointer_vec, N));
 
   cudaDeviceSynchronize();
   for (int i=0; i<nstreams; i++)
@@ -57,7 +57,7 @@ template <typename T> void run_test(int N, int nstreams, int blocksize) {
 }
 
 TEST(deinterleave, Basic) {
-  int N = 30;
+  int N = 3000;
 
   run_test<int16_t>(3*(N / 3), 3, 2);
   run_test<float>(5*(N / 5), 5, 1);
