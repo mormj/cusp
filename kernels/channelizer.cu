@@ -50,24 +50,24 @@ cudaError_t channelizer<std::complex<float>>::launch(
     int grid_size, int block_size, cudaStream_t stream) {
 
   if (_ntaps <= 8) {
-    std::cout << " launch 1" << std::endl;
+    // std::cout << " launch 1" << std::endl;
     _cupy_channelizer_8x8_complex64_complex64<<<grid_size, block_size, 0,
                                                 stream>>>(
         _nchans, _ntaps, N, (const cuFloatComplex *)in,
         (const cuFloatComplex *)_dev_taps, (cuFloatComplex *)out);
   } else if (_ntaps <= 16) {
-    std::cout << " launch 2" << std::endl;
+    // std::cout << " launch 2" << std::endl;
     _cupy_channelizer_16x16_complex64_complex64<<<grid_size, block_size, 0,
                                                   stream>>>(
         _nchans, _ntaps, N, (const cuFloatComplex *)in,
         (const cuFloatComplex *)_dev_taps, (cuFloatComplex *)out);
   } else {
-    std::cout << " launch 3" << std::endl;
+    // std::cout << " launch 3" << std::endl;
 
     // threadsperblock = (32, 32)
     // blockspergrid = ((n_chans + 31) // 32, _get_numSM() * 2)
 
-    std::cout << grid_size << " " << block_size << std::endl;
+    // std::cout << grid_size << " " << block_size << std::endl;
     _cupy_channelizer_32x32_complex64_complex64<<<
         dim3((_nchans + 31) / 32, 40 * 2, 1), dim3(32, 32, 1), 0, stream>>>(
         _nchans, _ntaps, N, (const cuFloatComplex *)in,
@@ -76,6 +76,7 @@ cudaError_t channelizer<std::complex<float>>::launch(
 
   checkCudaErrors(cudaPeekAtLastError());
 
+  // std::cout << "fft with " << _nchans << " / " << N << std::endl;
   checkCudaErrors(cufftPlan1d(&_plan, _nchans, CUFFT_C2C, N ));
   checkCudaErrors(cufftSetStream(_plan, stream));
   checkCudaErrors (cufftExecC2C(_plan, (cufftComplex *) out, (cufftComplex *) out, CUFFT_FORWARD) );

@@ -42,14 +42,17 @@ void run_test(const std::vector<T> &data, const std::vector<T> &taps, const size
   checkCudaErrors(cudaMalloc(&dev_output_data, N * sizeof(T)));
 
   auto t1 = std::chrono::steady_clock::now();
-  checkCudaErrors(op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N / nchans));
+
+  int iters = 1000;
+  for (int i=0; i<iters; i++)
+    checkCudaErrors(op.launch_default_occupancy({dev_input_data}, {dev_output_data}, N / nchans));
 
   cudaDeviceSynchronize();
   auto t2 = std::chrono::steady_clock::now();
   auto time =
       std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1e9;
     std::cout << "[PROFILE_TIME]" << time << "[PROFILE_TIME]" << std::endl;
-    std::cout << "[THROUGHPUT]" << (float)N / time << "[THROUGHPUT]" << std::endl;
+    std::cout << "[THROUGHPUT]" << (float)(N*iters) / time << "[THROUGHPUT]" << std::endl;
 
   checkCudaErrors(cudaMemcpy(host_output_data.data(), dev_output_data, sizeof(T)*N, cudaMemcpyDeviceToHost));
 
@@ -77,8 +80,8 @@ TEST(ChannelizerKernel, Basic) {
 
   std::vector<float> freqs{110., -513., 203., -230, 121};
 
-  // size_t nsamps = 10000000;
-  size_t nsamps = 1000;
+  size_t nsamps = 1000000;
+  // size_t nsamps = 1000;
   std::vector<std::complex<float>> in_data(nsamps);
   float samp_rate = 5000.0;
   float ifs = samp_rate * (float)freqs.size();
