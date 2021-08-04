@@ -40,7 +40,7 @@ foreach qa : qa_tests
         link_language : 'cpp',
         dependencies: [cusp_dep, gtest_dep], 
         install : false)
-    test('Test Copy', e)
+    test(qa, e)
 endforeach
 
 

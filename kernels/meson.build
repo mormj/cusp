@@ -29,7 +29,7 @@ cusp_cu_files = files([
     'arg_min.cu',
     'keep_m_in_n.cu',
     'keep_one_in_n.cu',
-    'min.cu'
+    'min.cu',
     'channelizer.cu'])
 
 incdir = ['../include']
