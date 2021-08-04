@@ -19,8 +19,8 @@ __global__ void kernel_dot_product(const T *in1, const T *in2, T *out, int N) {
 
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   __shared__ T cache[default_min_block];
-  T temp = (T)0;
 
+  T temp = (T)0;
   while (i < N) {
     temp += in1[i] * in2[i];
     i += blockDim.x * gridDim.x;
@@ -48,7 +48,6 @@ __global__ void kernel_dot_product<thrust::complex<float>>(
     thrust::complex<float> temp(0, 0);
 
     while (i < N) {
-      // temp += in1[i] * in2[i];
       temp += in1[i] *  thrust::complex<float>(in2[i].real(), -1.0 * in2[i].imag());
       i += blockDim.x * gridDim.x;
     }
@@ -76,7 +75,6 @@ __global__ void kernel_dot_product<thrust::complex<double>>(
     thrust::complex<double> temp(0, 0);
 
     while (i < N) {
-      // temp += in1[i] * in2[i];
       temp += in1[i] *  thrust::complex<double>(in2[i].real(), -1.0 * in2[i].imag());
       i += blockDim.x * gridDim.x;
     }
@@ -94,14 +92,6 @@ __global__ void kernel_dot_product<thrust::complex<double>>(
     if (threadIdx.x == 0) out[blockIdx.x] = cache[0];
 }
 
-
-// This is a really inneficient way of performing decimation,
-// but unfortunately I'm not sure of a better way. A kernel
-// implementation allows us to calculate the numeric value of
-// our dot product before copying memory back to the host,
-// whereas a cpu function requires memory to have already 
-// been copied back to the host, which can be annoying when
-// working with gnuradio blocks.
 template <typename T>
 __global__ void kernel_decimate(T * outputs, const int gridSize) {
   for (int i = 1; i < gridSize; i++) {
@@ -142,12 +132,14 @@ cudaError_t dot_product<T>::launch(const std::vector<const void *> &inputs,
           (const T *)inputs[0],
           (const T *)inputs[1],
           (T *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1, 0, stream>>>(output, grid_size);
     } else {
       kernel_dot_product<<<grid_size, block_size>>>(
           (const T *)inputs[0],
           (const T *)inputs[1],
           (T *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1>>>(output, grid_size);
     }
     return cudaPeekAtLastError();
@@ -163,6 +155,7 @@ cudaError_t dot_product<std::complex<float>>::launch(const std::vector<const voi
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
           (thrust::complex<float> *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1, 0, stream>>>(
           (thrust::complex<float> *)output, grid_size);
     } else {
@@ -170,6 +163,7 @@ cudaError_t dot_product<std::complex<float>>::launch(const std::vector<const voi
           (const thrust::complex<float> *)inputs[0],
           (const thrust::complex<float> *)inputs[1],
           (thrust::complex<float> *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1>>>(
           (thrust::complex<float> *)output, grid_size);
     }
@@ -187,6 +181,7 @@ cudaError_t dot_product<std::complex<double>>::launch(const std::vector<const vo
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
           (thrust::complex<double> *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1, 0, stream>>>(
           (thrust::complex<double> *)output, grid_size);
     } else {
@@ -194,6 +189,7 @@ cudaError_t dot_product<std::complex<double>>::launch(const std::vector<const vo
           (const thrust::complex<double> *)inputs[0],
           (const thrust::complex<double> *)inputs[1],
           (thrust::complex<double> *)output, nitems);
+      cudaDeviceSynchronize();
       kernel_decimate<<<1, 1>>>(
           (thrust::complex<double> *)output, grid_size);
     }

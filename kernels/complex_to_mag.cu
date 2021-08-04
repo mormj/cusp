@@ -11,18 +11,8 @@ __global__ void kernel_mag(const thrust::complex<float> *in, float *out, int N) 
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
     float start = in[i].real() * in[i].real() + in[i].imag() * in[i].imag();
-    float guess = sqrtf(start);
-    out[i] = guess;
-
-    // if (guess == 0) {
-    //   out[i] = thrust::complex<float>(guess, 0);
-    // }
-    // else {
-    //   for (int t = 0; t < 15; t++) {
-    //     guess = 0.5f * (guess + start / guess);
-    //   }
-    //   out[i] = thrust::complex<float>(guess, 0);
-    // }
+    float root = sqrtf(start);
+    out[i] = root;
   }
 }
 

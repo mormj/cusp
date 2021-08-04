@@ -18,7 +18,6 @@ void run_test(int N, int num_inputs)
                                                host_input_data.end()) - 
                                                host_input_data.begin();
 
-    // std::cout << expected_output_data[0] << std::endl;
     
     std::vector<T> host_output_data(N);
   
@@ -44,17 +43,6 @@ void run_test(int N, int num_inputs)
     cudaDeviceSynchronize();
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
-
-    // int grid_size = (N + 255) / 256;
-    // std::cout << grid_size << std::endl;
-    // for (int i = 0; i < 2 * grid_size * num_inputs; i++) {
-    //     std::cout << host_output_data[i] << " " << i << std::endl;
-    // }
-
-    // std::cout << "~~~~~~~~~~~~~~" << std::endl;
-
-    // std::cout << host_output_data[0] << std::endl;
-    // std::cout << host_output_data[1] << std::endl;
 
     EXPECT_EQ(expected_output_data[0], host_output_data[0]);
     EXPECT_EQ(true, host_output_data[1] < num_inputs);

@@ -43,15 +43,6 @@ void run_test(int N, int num_inputs)
     cudaMemcpy(host_output_data.data(), dev_output_data,
                N * sizeof(T), cudaMemcpyDeviceToHost);
 
-    // int grid_size = (N + 255) / 256;
-    // for (int i = 0; i < 2 * grid_size; i++) {
-    //     std::cout << host_output_data[i] << " " << i << std::endl;
-    // }
-
-    // std::cout << host_input_data[host_output_data[0]] << std::endl;
-    // std::cout << host_output_data[0] << std::endl;
-    // std::cout << host_output_data[1] << std::endl;
-
     EXPECT_EQ(expected_output_data[0], host_output_data[0]);
     EXPECT_EQ(true, host_output_data[1] < num_inputs);
 

@@ -12,7 +12,8 @@ namespace cusp
         int _ninputs;
         bool _multi_output;
     public:
-        min(int ninputs = 1, bool multi_output = false);
+        min(int ninputs = 1, bool multi_output = false) : _ninputs(ninputs),
+            _multi_output(multi_output) {};
 
         cudaError_t launch(const std::vector<const void *>& inputs,
             T* output, int ninputs, bool multi_output, int grid_size,

@@ -1,5 +1,6 @@
 #include <cusp/helper_cuda.h>
 #include <complex>
+#include <limits>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cusp/min.cuh>
@@ -10,14 +11,15 @@
 namespace cusp {
 
 template <typename T>
-__global__ void kernel_min(const T* ins, T* out, int stream_number, int grid_size, int N)
+__global__ void kernel_min(const T* ins, T* out, T numeric_max,
+    int stream_number, int grid_size, int N)
 {
     __shared__ T cache[default_min_block];
 
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     int cacheIndex = threadIdx.x;
 
-    T temp = ins[i];
+    T temp = numeric_max;
     while (i < N) {
     	if(ins[i] < temp)
     		temp = ins[i];
@@ -39,42 +41,33 @@ __global__ void kernel_min(const T* ins, T* out, int stream_number, int grid_siz
     }
     
     if(cacheIndex == 0) {
-        // out[blockIdx.x] = cache[0];
         out[blockIdx.x + stream_number * grid_size] = cache[0];
     }
 }
 
 
 template <typename T>
-__global__ void kernel_get_min_single(T * out, int grid_size, int ninputs) {
-    T max = out[0];
+__global__ void decimate_min_single(T * out, int grid_size, int ninputs) {
+    T min = out[0];
     for (int i = 0; i < ninputs * grid_size; i++) {
-        if (max < out[i]) max = out[i];
-        out[i] = (T)0;
+        if (min > out[i]) min = out[i];
     }
-    out[0] = max;
+    out[0] = min;
 }
 
 template <typename T>
-__global__ void kernel_get_min_multiple(T * out, int grid_size, int ninputs) {
+__global__ void decimate_min_multiple(T * out, int grid_size, int ninputs) {
+    T min = out[0];
     for (int stream_number = 0; stream_number < ninputs; stream_number++) {
-        T max = (T)0;
         for (int block_index = 0; block_index < grid_size; block_index++) {
-            if (out[stream_number * grid_size + block_index] > max) {
-                max = out[stream_number * grid_size + block_index];
+            int index = stream_number * grid_size + block_index;
+            if (out[index] < min) {
+                min = out[index];
             }
-            out[stream_number * grid_size + block_index] = (T)0;
         }
-        out[stream_number] = max;
+        out[stream_number] = min;
     }
 }
-
-
-// design two kernels, one with vlen = 1
-// and one with vlen = len
-
-template <typename T> min<T>::min(int ninputs, bool multi_output) : _ninputs(ninputs),
-    _multi_output(multi_output) {}
 
 template <typename T>
 cudaError_t min<T>::launch(const std::vector<const void *> &inputs,
@@ -82,20 +75,22 @@ cudaError_t min<T>::launch(const std::vector<const void *> &inputs,
                                 int grid_size, int block_size, size_t nitems,
                                 cudaStream_t stream) {
 
+    T numeric_max = std::numeric_limits<T>::max();
+
     if (stream) {
         for (int i = 0; i < ninputs; i++) {
             kernel_min<<<grid_size, block_size, 0, stream>>>(
                 (const T *)inputs[i],
-                (T *)output, i, grid_size, nitems
+                (T *)output, numeric_max, i, grid_size, nitems
             );
         }
         if (multi_output) {
-            kernel_get_min_multiple<<<1, 1, 0, stream>>>(
-                (T *) output, grid_size, ninputs
+            decimate_min_multiple<<<1, 1, 0, stream>>>(
+                output, grid_size, ninputs
             );
         } else {
-            kernel_get_min_single<<<1, 1, 0, stream>>>(
-                (T *)output, grid_size, ninputs
+            decimate_min_single<<<1, 1, 0, stream>>>(
+                output, grid_size, ninputs
             );
         }
     }
@@ -103,16 +98,16 @@ cudaError_t min<T>::launch(const std::vector<const void *> &inputs,
         for (int i = 0; i < ninputs; i++) {
             kernel_min<<<grid_size, block_size>>>(
                 (const T *)inputs[i],
-                (T *)output, i, grid_size, nitems
+                (T *)output, numeric_max, i, grid_size, nitems
             );
         }
         if (multi_output) {
-            kernel_get_min_multiple<<<1, 1>>>(
-                (T *) output, grid_size, ninputs
+            decimate_min_multiple<<<1, 1>>>(
+                output, grid_size, ninputs
             );
         } else {
-            kernel_get_min_single<<<1, 1>>>(
-                (T *)output, grid_size, ninputs
+            decimate_min_single<<<1, 1>>>(
+                output, grid_size, ninputs
             );
         }
     }

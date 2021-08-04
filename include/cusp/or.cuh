@@ -8,10 +8,10 @@ namespace cusp
     class or_bitwise : public kernel
     {
     private:
-        T _ninputs;
+        int _ninputs;
         void **_dev_ptr_array;
     public:
-        or_bitwise(T ninputs);
+        or_bitwise(int ninputs);
         cudaError_t launch(const std::vector<const void *>& inputs,
             T* output, int ninputs, int grid_size, int block_size, size_t nitems, cudaStream_t stream = 0);
         virtual cudaError_t launch(const std::vector<const void *>& inputs,

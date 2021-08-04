@@ -4,7 +4,7 @@
 using namespace cusp;
 
 template <typename T> 
-void run_test(int N, T num_inputs)
+void run_test(int N, int num_inputs)
 {
     std::vector<T> host_input_data(N);
     std::vector<T> expected_output_data(N);
