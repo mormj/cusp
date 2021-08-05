@@ -10,10 +10,6 @@ __global__ void kernel_window(const T *in, T *out, float * window, int window_le
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
     out[i] = in[i] * window[i%window_length];
-    printf("input element is %f\n", in[i]);
-    printf("window element is %f\n", window[i%window_length]);
-    printf("output element is %f\n", out[i]);
-    printf("\n");
   }
 }
 

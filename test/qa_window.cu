@@ -10,9 +10,8 @@ void run_test(int N, float * window, int window_length)
 {
     std::vector<T> host_input_data(N);
     std::vector<T> expected_output_data(N);
-    //int nbatches = N/window_length;
     for (int i = 0; i < N; i++) {
-      host_input_data[i] = i;
+      host_input_data[i] = (T)i;
       expected_output_data[i] = host_input_data[i] * window[i%window_length];
     }
     std::vector<T> host_output_data(N);
@@ -79,6 +78,7 @@ void run_test<float>(int N, float * window, int window_length)
 
     EXPECT_EQ(expected_output_data, host_output_data);
 }
+
 
 
 TEST(WindowKernel, Basic) {
